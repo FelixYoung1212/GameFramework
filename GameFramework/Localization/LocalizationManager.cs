@@ -5,7 +5,11 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
+#else
+using GameFramework.Resource.Addressables;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -170,7 +174,11 @@ namespace GameFramework.Localization
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         public void SetResourceManager(IResourceManager resourceManager)
+#else
+        public void SetResourceManager(IAddressablesManager resourceManager)
+#endif
         {
             m_DataProvider.SetResourceManager(resourceManager);
         }

@@ -5,7 +5,11 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
+#else
+using GameFramework.Resource.Addressables;
+#endif
 
 namespace GameFramework.Localization
 {
@@ -51,7 +55,11 @@ namespace GameFramework.Localization
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         void SetResourceManager(IResourceManager resourceManager);
+#else
+        void SetResourceManager(IAddressablesManager resourceManager);
+#endif
 
         /// <summary>
         /// 设置本地化数据提供者辅助器。
