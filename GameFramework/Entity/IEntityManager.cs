@@ -6,7 +6,11 @@
 //------------------------------------------------------------
 
 using GameFramework.ObjectPool;
+#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
+#else
+using GameFramework.Resource.Addressables;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -48,10 +52,12 @@ namespace GameFramework.Entity
         /// </summary>
         event EventHandler<ShowEntityUpdateEventArgs> ShowEntityUpdate;
 
+#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 显示实体时加载依赖资源事件。
         /// </summary>
         event EventHandler<ShowEntityDependencyAssetEventArgs> ShowEntityDependencyAsset;
+#endif
 
         /// <summary>
         /// 隐藏实体完成事件。
@@ -64,11 +70,19 @@ namespace GameFramework.Entity
         /// <param name="objectPoolManager">对象池管理器。</param>
         void SetObjectPoolManager(IObjectPoolManager objectPoolManager);
 
+#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
         void SetResourceManager(IResourceManager resourceManager);
+#else
+        /// <summary>
+        /// 设置Addressables资源管理器。
+        /// </summary>
+        /// <param name="resourceManager">资源管理器。</param>
+        void SetResourceManager(IAddressablesManager resourceManager);
+#endif
 
         /// <summary>
         /// 设置实体辅助器。
@@ -202,6 +216,7 @@ namespace GameFramework.Entity
         /// <param name="entityGroupName">实体组名称。</param>
         void ShowEntity(int entityId, string entityAssetName, string entityGroupName);
 
+#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 显示实体。
         /// </summary>
@@ -210,6 +225,7 @@ namespace GameFramework.Entity
         /// <param name="entityGroupName">实体组名称。</param>
         /// <param name="priority">加载实体资源的优先级。</param>
         void ShowEntity(int entityId, string entityAssetName, string entityGroupName, int priority);
+#endif
 
         /// <summary>
         /// 显示实体。
@@ -220,6 +236,7 @@ namespace GameFramework.Entity
         /// <param name="userData">用户自定义数据。</param>
         void ShowEntity(int entityId, string entityAssetName, string entityGroupName, object userData);
 
+#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 显示实体。
         /// </summary>
@@ -229,6 +246,7 @@ namespace GameFramework.Entity
         /// <param name="priority">加载实体资源的优先级。</param>
         /// <param name="userData">用户自定义数据。</param>
         void ShowEntity(int entityId, string entityAssetName, string entityGroupName, int priority, object userData);
+#endif
 
         /// <summary>
         /// 隐藏实体。
