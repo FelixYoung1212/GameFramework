@@ -720,11 +720,6 @@ namespace GameFramework.UI
 #endif
         }
 
-        public int OpenUIForm(string uiFormAssetName, string uiGroupName, int priority, object userData)
-        {
-            throw new NotImplementedException();
-        }
-
 #if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 打开界面。
