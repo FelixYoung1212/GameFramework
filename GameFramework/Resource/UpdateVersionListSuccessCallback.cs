@@ -1,4 +1,5 @@
-﻿//------------------------------------------------------------
+#if !ADDRESSABLES_SUPPORT
+//------------------------------------------------------------
 // Game Framework
 // Copyright © 2013-2021 Jiang Yin. All rights reserved.
 // Homepage: https://gameframework.cn/
@@ -14,3 +15,4 @@ namespace GameFramework.Resource
     /// <param name="downloadUri">版本资源列表更新地址。</param>
     public delegate void UpdateVersionListSuccessCallback(string downloadPath, string downloadUri);
 }
+#endif

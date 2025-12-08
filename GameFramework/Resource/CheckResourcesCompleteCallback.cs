@@ -1,4 +1,5 @@
-﻿//------------------------------------------------------------
+#if !ADDRESSABLES_SUPPORT
+//------------------------------------------------------------
 // Game Framework
 // Copyright © 2013-2021 Jiang Yin. All rights reserved.
 // Homepage: https://gameframework.cn/
@@ -17,3 +18,4 @@ namespace GameFramework.Resource
     /// <param name="updateTotalCompressedLength">可更新的压缩后总大小。</param>
     public delegate void CheckResourcesCompleteCallback(int movedCount, int removedCount, int updateCount, long updateTotalLength, long updateTotalCompressedLength);
 }
+#endif

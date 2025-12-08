@@ -1,4 +1,5 @@
-﻿//------------------------------------------------------------
+#if !ADDRESSABLES_SUPPORT
+//------------------------------------------------------------
 // Game Framework
 // Copyright © 2013-2021 Jiang Yin. All rights reserved.
 // Homepage: https://gameframework.cn/
@@ -23,3 +24,4 @@ namespace GameFramework.Resource
     /// <param name="hashCode">资源哈希值。</param>
     public delegate void DecryptResourceCallback(byte[] bytes, int startIndex, int count, string name, string variant, string extension, bool storageInReadOnly, string fileSystem, byte loadType, int length, int hashCode);
 }
+#endif
