@@ -5,9 +5,8 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
-#else
+#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
 #endif
 using System;
@@ -34,9 +33,7 @@ namespace GameFramework.Sound
         private EventHandler<PlaySoundSuccessEventArgs> m_PlaySoundSuccessEventHandler;
         private EventHandler<PlaySoundFailureEventArgs> m_PlaySoundFailureEventHandler;
         private EventHandler<PlaySoundUpdateEventArgs> m_PlaySoundUpdateEventHandler;
-#if !ADDRESSABLES_SUPPORT
-        private EventHandler<PlaySoundDependencyAssetEventArgs> m_PlaySoundDependencyAssetEventHandler;  
-#endif
+        private EventHandler<PlaySoundDependencyAssetEventArgs> m_PlaySoundDependencyAssetEventHandler;
 
         /// <summary>
         /// 初始化声音管理器的新实例。
@@ -46,20 +43,14 @@ namespace GameFramework.Sound
             m_SoundGroups = new Dictionary<string, SoundGroup>(StringComparer.Ordinal);
             m_SoundsBeingLoaded = new List<int>();
             m_SoundsToReleaseOnLoad = new HashSet<int>();
-#if !ADDRESSABLES_SUPPORT
             m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback, LoadAssetDependencyAssetCallback);
-#else
-            m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback);
-#endif
             m_ResourceManager = null;
             m_SoundHelper = null;
             m_Serial = 0;
             m_PlaySoundSuccessEventHandler = null;
             m_PlaySoundFailureEventHandler = null;
             m_PlaySoundUpdateEventHandler = null;
-#if !ADDRESSABLES_SUPPORT
-            m_PlaySoundDependencyAssetEventHandler = null;      
-#endif
+            m_PlaySoundDependencyAssetEventHandler = null;
         }
 
         /// <summary>
@@ -117,8 +108,7 @@ namespace GameFramework.Sound
                 m_PlaySoundUpdateEventHandler -= value;
             }
         }
-
-#if !ADDRESSABLES_SUPPORT
+        
         /// <summary>
         /// 播放声音时加载依赖资源事件。
         /// </summary>
@@ -133,7 +123,6 @@ namespace GameFramework.Sound
                 m_PlaySoundDependencyAssetEventHandler -= value;
             }
         }
-#endif
 
         /// <summary>
         /// 声音管理器轮询。
@@ -381,11 +370,7 @@ namespace GameFramework.Sound
         /// <returns>声音的序列编号。</returns>
         public int PlaySound(string soundAssetName, string soundGroupName)
         {
-#if !ADDRESSABLES_SUPPORT
             return PlaySound(soundAssetName, soundGroupName, Resource.Constant.DefaultPriority, null, null);
-#else
-            return PlaySound(soundAssetName, soundGroupName, 0, null, null);
-#endif
         }
 
         /// <summary>
@@ -409,11 +394,7 @@ namespace GameFramework.Sound
         /// <returns>声音的序列编号。</returns>
         public int PlaySound(string soundAssetName, string soundGroupName, PlaySoundParams playSoundParams)
         {
-#if !ADDRESSABLES_SUPPORT
             return PlaySound(soundAssetName, soundGroupName, Resource.Constant.DefaultPriority, playSoundParams, null);
-#else
-            return PlaySound(soundAssetName, soundGroupName, 0, playSoundParams, null);
-#endif
         }
 
         /// <summary>
@@ -425,11 +406,7 @@ namespace GameFramework.Sound
         /// <returns>声音的序列编号。</returns>
         public int PlaySound(string soundAssetName, string soundGroupName, object userData)
         {
-#if !ADDRESSABLES_SUPPORT
             return PlaySound(soundAssetName, soundGroupName, Resource.Constant.DefaultPriority, null, userData);
-#else    
-            return PlaySound(soundAssetName, soundGroupName, 0, null, userData);
-#endif
         }
 
         /// <summary>
@@ -468,11 +445,7 @@ namespace GameFramework.Sound
         /// <returns>声音的序列编号。</returns>
         public int PlaySound(string soundAssetName, string soundGroupName, PlaySoundParams playSoundParams, object userData)
         {
-#if !ADDRESSABLES_SUPPORT
             return PlaySound(soundAssetName, soundGroupName, Resource.Constant.DefaultPriority, playSoundParams, userData);
-#else
-            return PlaySound(soundAssetName, soundGroupName, 0, playSoundParams, userData);
-#endif
         }
 
         /// <summary>
@@ -730,12 +703,8 @@ namespace GameFramework.Sound
             ReferencePool.Release(playSoundInfo);
             throw new GameFrameworkException(errorMessage);
         }
-
-#if !ADDRESSABLES_SUPPORT
+        
         private void LoadAssetFailureCallback(string soundAssetName, LoadResourceStatus status, string errorMessage, object userData)
-#else
-        private void LoadAssetFailureCallback(string soundAssetName, string errorMessage, object userData)
-#endif
         {
             PlaySoundInfo playSoundInfo = (PlaySoundInfo)userData;
             if (playSoundInfo == null)
@@ -755,11 +724,7 @@ namespace GameFramework.Sound
             }
 
             m_SoundsBeingLoaded.Remove(playSoundInfo.SerialId);
-#if !ADDRESSABLES_SUPPORT
             string appendErrorMessage = Utility.Text.Format("Load sound failure, asset name '{0}', status '{1}', error message '{2}'.", soundAssetName, status, errorMessage);
-#else           
-            string appendErrorMessage = Utility.Text.Format("Load sound failure, asset name '{0}', status '{1}', error message '{2}'.", soundAssetName, errorMessage);
-#endif
             if (m_PlaySoundFailureEventHandler != null)
             {
                 PlaySoundFailureEventArgs playSoundFailureEventArgs = PlaySoundFailureEventArgs.Create(playSoundInfo.SerialId, soundAssetName, playSoundInfo.SoundGroup.Name, playSoundInfo.PlaySoundParams, PlaySoundErrorCode.LoadAssetFailure, appendErrorMessage, playSoundInfo.UserData);
@@ -792,8 +757,7 @@ namespace GameFramework.Sound
                 ReferencePool.Release(playSoundUpdateEventArgs);
             }
         }
-
-#if !ADDRESSABLES_SUPPORT
+        
         private void LoadAssetDependencyAssetCallback(string soundAssetName, string dependencyAssetName, int loadedCount, int totalCount, object userData)
         {
             PlaySoundInfo playSoundInfo = (PlaySoundInfo)userData;
@@ -808,7 +772,6 @@ namespace GameFramework.Sound
                 m_PlaySoundDependencyAssetEventHandler(this, playSoundDependencyAssetEventArgs);
                 ReferencePool.Release(playSoundDependencyAssetEventArgs);
             }
-        }  
-#endif
+        }
     }
 }

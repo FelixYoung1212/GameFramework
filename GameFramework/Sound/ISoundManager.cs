@@ -42,13 +42,11 @@ namespace GameFramework.Sound
         /// 播放声音更新事件。
         /// </summary>
         event EventHandler<PlaySoundUpdateEventArgs> PlaySoundUpdate;
-
-#if !ADDRESSABLES_SUPPORT
+        
         /// <summary>
         /// 播放声音时加载依赖资源事件。
         /// </summary>
         event EventHandler<PlaySoundDependencyAssetEventArgs> PlaySoundDependencyAsset;
-#endif
 
 #if !ADDRESSABLES_SUPPORT
         /// <summary>
