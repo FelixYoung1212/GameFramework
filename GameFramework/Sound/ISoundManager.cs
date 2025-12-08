@@ -5,7 +5,11 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
+#else
+using GameFramework.Resource.Addressables;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -39,16 +43,26 @@ namespace GameFramework.Sound
         /// </summary>
         event EventHandler<PlaySoundUpdateEventArgs> PlaySoundUpdate;
 
+#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 播放声音时加载依赖资源事件。
         /// </summary>
         event EventHandler<PlaySoundDependencyAssetEventArgs> PlaySoundDependencyAsset;
+#endif
 
+#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
         void SetResourceManager(IResourceManager resourceManager);
+#else
+        /// <summary>
+        /// 设置Addressables资源管理器。
+        /// </summary>
+        /// <param name="resourceManager">资源管理器。</param>
+        void SetResourceManager(IAddressablesManager resourceManager);
+#endif
 
         /// <summary>
         /// 设置声音辅助器。
