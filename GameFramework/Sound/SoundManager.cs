@@ -144,12 +144,15 @@ namespace GameFramework.Sound
             m_SoundsToReleaseOnLoad.Clear();
         }
 
-#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         public void SetResourceManager(IResourceManager resourceManager)
+#else
+        public void SetResourceManager(IAddressablesManager resourceManager)
+#endif
         {
             if (resourceManager == null)
             {
@@ -158,21 +161,6 @@ namespace GameFramework.Sound
 
             m_ResourceManager = resourceManager;
         }
-#else
-        /// <summary>
-        /// 设置Addressables资源管理器。
-        /// </summary>
-        /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
-        {
-            if (resourceManager == null)
-            {
-                throw new GameFrameworkException("Addressables manager is invalid.");
-            }
-
-            m_ResourceManager = resourceManager;
-        }
-#endif
 
         /// <summary>
         /// 设置声音辅助器。
