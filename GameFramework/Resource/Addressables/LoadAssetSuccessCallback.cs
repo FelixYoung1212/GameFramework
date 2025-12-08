@@ -1,3 +1,4 @@
+#if ADDRESSABLES_SUPPORT
 namespace GameFramework.Resource.Addressables
 {
     /// <summary>
@@ -9,3 +10,4 @@ namespace GameFramework.Resource.Addressables
     /// <param name="userData">用户自定义数据。</param>
     public delegate void LoadAssetSuccessCallback(string assetName, object asset, float duration, object userData);
 }
+#endif

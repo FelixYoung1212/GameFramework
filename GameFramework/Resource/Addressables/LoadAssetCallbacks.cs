@@ -1,3 +1,4 @@
+#if ADDRESSABLES_SUPPORT
 namespace GameFramework.Resource.Addressables
 {
     /// <summary>
@@ -90,3 +91,4 @@ namespace GameFramework.Resource.Addressables
         }
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿namespace GameFramework.Resource.Addressables
+﻿#if ADDRESSABLES_SUPPORT
+namespace GameFramework.Resource.Addressables
 {
     /// <summary>
     /// Addressables资源管理器接口
@@ -14,3 +15,4 @@
         void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData);
     }
 }
+#endif
