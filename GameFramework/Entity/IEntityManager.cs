@@ -68,17 +68,13 @@ namespace GameFramework.Entity
         /// <param name="objectPoolManager">对象池管理器。</param>
         void SetObjectPoolManager(IObjectPoolManager objectPoolManager);
 
-#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         void SetResourceManager(IResourceManager resourceManager);
 #else
-        /// <summary>
-        /// 设置Addressables资源管理器。
-        /// </summary>
-        /// <param name="resourceManager">资源管理器。</param>
         void SetResourceManager(IAddressablesManager resourceManager);
 #endif
 
