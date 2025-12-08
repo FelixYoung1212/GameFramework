@@ -6,9 +6,8 @@
 //------------------------------------------------------------
 
 using GameFramework.ObjectPool;
-#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
-#else
+#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
 #endif
 using System;
@@ -39,9 +38,7 @@ namespace GameFramework.Entity
         private EventHandler<ShowEntitySuccessEventArgs> m_ShowEntitySuccessEventHandler;
         private EventHandler<ShowEntityFailureEventArgs> m_ShowEntityFailureEventHandler;
         private EventHandler<ShowEntityUpdateEventArgs> m_ShowEntityUpdateEventHandler;
-#if !ADDRESSABLES_SUPPORT
         private EventHandler<ShowEntityDependencyAssetEventArgs> m_ShowEntityDependencyAssetEventHandler;
-#endif
         private EventHandler<HideEntityCompleteEventArgs> m_HideEntityCompleteEventHandler;
 
         /// <summary>
@@ -54,11 +51,7 @@ namespace GameFramework.Entity
             m_EntitiesBeingLoaded = new Dictionary<int, int>();
             m_EntitiesToReleaseOnLoad = new HashSet<int>();
             m_RecycleQueue = new Queue<EntityInfo>();
-#if !ADDRESSABLES_SUPPORT
             m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback, LoadAssetDependencyAssetCallback);
-#else
-            m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback);
-#endif
             m_ObjectPoolManager = null;
             m_ResourceManager = null;
             m_EntityHelper = null;
@@ -67,9 +60,7 @@ namespace GameFramework.Entity
             m_ShowEntitySuccessEventHandler = null;
             m_ShowEntityFailureEventHandler = null;
             m_ShowEntityUpdateEventHandler = null;
-#if !ADDRESSABLES_SUPPORT
             m_ShowEntityDependencyAssetEventHandler = null;
-#endif
             m_HideEntityCompleteEventHandler = null;
         }
 
@@ -139,8 +130,7 @@ namespace GameFramework.Entity
                 m_ShowEntityUpdateEventHandler -= value;
             }
         }
-
-#if !ADDRESSABLES_SUPPORT
+        
         /// <summary>
         /// 显示实体时加载依赖资源事件。
         /// </summary>
@@ -155,7 +145,6 @@ namespace GameFramework.Entity
                 m_ShowEntityDependencyAssetEventHandler -= value;
             }
         }
-#endif
 
         /// <summary>
         /// 隐藏实体完成事件。
@@ -228,13 +217,16 @@ namespace GameFramework.Entity
 
             m_ObjectPoolManager = objectPoolManager;
         }
-        
-#if !ADDRESSABLES_SUPPORT
+
         /// <summary>
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         public void SetResourceManager(IResourceManager resourceManager)
+#else
+        public void SetResourceManager(IAddressablesManager resourceManager)
+#endif
         {
             if (resourceManager == null)
             {
@@ -243,21 +235,6 @@ namespace GameFramework.Entity
 
             m_ResourceManager = resourceManager;
         }
-#else
-        /// <summary>
-        /// 设置Addressables资源管理器。
-        /// </summary>
-        /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
-        {
-            if (resourceManager == null)
-            {
-                throw new GameFrameworkException("Addressables manager is invalid.");
-            }
-
-            m_ResourceManager = resourceManager;
-        }
-#endif
 
         /// <summary>
         /// 设置实体辅助器。
@@ -604,14 +581,9 @@ namespace GameFramework.Entity
         /// <param name="entityGroupName">实体组名称。</param>
         public void ShowEntity(int entityId, string entityAssetName, string entityGroupName)
         {
-#if !ADDRESSABLES_SUPPORT
             ShowEntity(entityId, entityAssetName, entityGroupName, Constant.DefaultPriority, null);
-#else
-            ShowEntity(entityId, entityAssetName, entityGroupName, null);
-#endif
         }
-
-#if !ADDRESSABLES_SUPPORT
+        
         /// <summary>
         /// 显示实体。
         /// </summary>
@@ -622,10 +594,8 @@ namespace GameFramework.Entity
         public void ShowEntity(int entityId, string entityAssetName, string entityGroupName, int priority)
         {
             ShowEntity(entityId, entityAssetName, entityGroupName, priority, null);
-        }  
-#endif
-
-#if !ADDRESSABLES_SUPPORT
+        }
+        
         /// <summary>
         /// 显示实体。
         /// </summary>
@@ -636,10 +606,8 @@ namespace GameFramework.Entity
         public void ShowEntity(int entityId, string entityAssetName, string entityGroupName, object userData)
         {
             ShowEntity(entityId, entityAssetName, entityGroupName, Constant.DefaultPriority, userData);
-        }  
-#endif
+        }
         
-#if !ADDRESSABLES_SUPPORT
         /// <summary>
         /// 显示实体。
         /// </summary>
@@ -649,16 +617,6 @@ namespace GameFramework.Entity
         /// <param name="priority">加载实体资源的优先级。</param>
         /// <param name="userData">用户自定义数据。</param>
         public void ShowEntity(int entityId, string entityAssetName, string entityGroupName, int priority, object userData)
-#else
-        /// <summary>
-        /// 显示实体。
-        /// </summary>
-        /// <param name="entityId">实体编号。</param>
-        /// <param name="entityAssetName">实体资源名称。</param>
-        /// <param name="entityGroupName">实体组名称。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void ShowEntity(int entityId, string entityAssetName, string entityGroupName, object userData)
-#endif
         {
             if (m_ResourceManager == null)
             {
@@ -701,11 +659,7 @@ namespace GameFramework.Entity
             {
                 int serialId = ++m_Serial;
                 m_EntitiesBeingLoaded.Add(entityId, serialId);
-#if !ADDRESSABLES_SUPPORT
-                m_ResourceManager.LoadAsset(entityAssetName, priority, m_LoadAssetCallbacks, ShowEntityInfo.Create(serialId, entityId, entityGroup, userData));          
-#else
-                m_ResourceManager.LoadAsset(entityAssetName, m_LoadAssetCallbacks, ShowEntityInfo.Create(serialId, entityId, entityGroup, userData));
-#endif
+                m_ResourceManager.LoadAsset(entityAssetName, priority, m_LoadAssetCallbacks, ShowEntityInfo.Create(serialId, entityId, entityGroup, userData));
                 return;
             }
 
@@ -1322,11 +1276,7 @@ namespace GameFramework.Entity
             ReferencePool.Release(showEntityInfo);
         }
 
-#if !ADDRESSABLES_SUPPORT
         private void LoadAssetFailureCallback(string entityAssetName, LoadResourceStatus status, string errorMessage, object userData)
-#else
-        private void LoadAssetFailureCallback(string entityAssetName, string errorMessage, object userData)
-#endif
         {
             ShowEntityInfo showEntityInfo = (ShowEntityInfo)userData;
             if (showEntityInfo == null)
@@ -1341,11 +1291,7 @@ namespace GameFramework.Entity
             }
 
             m_EntitiesBeingLoaded.Remove(showEntityInfo.EntityId);
-#if !ADDRESSABLES_SUPPORT
             string appendErrorMessage = Utility.Text.Format("Load entity failure, asset name '{0}', status '{1}', error message '{2}'.", entityAssetName, status, errorMessage);
-#else
-            string appendErrorMessage = Utility.Text.Format("Load entity failure, asset name '{0}', status '{1}', error message '{2}'.", entityAssetName, errorMessage);
-#endif
             if (m_ShowEntityFailureEventHandler != null)
             {
                 ShowEntityFailureEventArgs showEntityFailureEventArgs = ShowEntityFailureEventArgs.Create(showEntityInfo.EntityId, entityAssetName, showEntityInfo.EntityGroup.Name, appendErrorMessage, showEntityInfo.UserData);
@@ -1372,8 +1318,7 @@ namespace GameFramework.Entity
                 ReferencePool.Release(showEntityUpdateEventArgs);
             }
         }
-
-#if !ADDRESSABLES_SUPPORT
+        
         private void LoadAssetDependencyAssetCallback(string entityAssetName, string dependencyAssetName, int loadedCount, int totalCount, object userData)
         {
             ShowEntityInfo showEntityInfo = (ShowEntityInfo)userData;
@@ -1389,6 +1334,5 @@ namespace GameFramework.Entity
                 ReferencePool.Release(showEntityDependencyAssetEventArgs);
             }
         }
-#endif
     }
 }
