@@ -6,9 +6,8 @@
 //------------------------------------------------------------
 
 using GameFramework.ObjectPool;
-#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
-#else
+#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
 #endif
 using System;
