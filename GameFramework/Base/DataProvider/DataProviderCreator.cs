@@ -5,7 +5,11 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+#if !ADDRESSABLES_SUPPORT
 using GameFramework.Resource;
+#else
+using GameFramework.Resource.Addressables;
+#endif
 
 namespace GameFramework
 {
@@ -51,7 +55,11 @@ namespace GameFramework
         /// <param name="resourceManager">资源管理器。</param>
         /// <param name="dataProviderHelper">数据提供者辅助器。</param>
         /// <returns>创建的数据提供者。</returns>
+#if !ADDRESSABLES_SUPPORT
         public static IDataProvider<T> Create<T>(T owner, IResourceManager resourceManager, IDataProviderHelper<T> dataProviderHelper)
+#else
+        public static IDataProvider<T> Create<T>(T owner, IAddressablesManager resourceManager, IDataProviderHelper<T> dataProviderHelper)
+#endif
         {
             if (owner == null)
             {

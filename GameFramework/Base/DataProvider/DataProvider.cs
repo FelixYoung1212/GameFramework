@@ -6,6 +6,9 @@
 //------------------------------------------------------------
 
 using GameFramework.Resource;
+#if ADDRESSABLES_SUPPORT
+using GameFramework.Resource.Addressables;
+#endif
 using System;
 
 namespace GameFramework
@@ -22,7 +25,11 @@ namespace GameFramework
         private readonly T m_Owner;
         private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private readonly LoadBinaryCallbacks m_LoadBinaryCallbacks;
+#if !ADDRESSABLES_SUPPORT
         private IResourceManager m_ResourceManager;
+#else
+        private IAddressablesManager m_ResourceManager;
+#endif
         private IDataProviderHelper<T> m_DataProviderHelper;
         private EventHandler<ReadDataSuccessEventArgs> m_ReadDataSuccessEventHandler;
         private EventHandler<ReadDataFailureEventArgs> m_ReadDataFailureEventHandler;
@@ -203,6 +210,7 @@ namespace GameFramework
                     m_ResourceManager.LoadBinary(dataAssetName, m_LoadBinaryCallbacks, userData);
                     break;
 
+#if !ADDRESSABLES_SUPPORT
                 case HasAssetResult.BinaryOnFileSystem:
                     int dataLength = m_ResourceManager.GetBinaryLength(dataAssetName);
                     EnsureCachedBytesSize(dataLength);
@@ -239,6 +247,7 @@ namespace GameFramework
                     }
 
                     break;
+#endif
 
                 default:
                     throw new GameFrameworkException(Utility.Text.Format("Data asset '{0}' is '{1}'.", dataAssetName, result));
@@ -375,7 +384,11 @@ namespace GameFramework
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        internal void SetResourceManager(IResourceManager resourceManager)
+#if !ADDRESSABLES_SUPPORT
+        public void SetResourceManager(IResourceManager resourceManager)
+#else
+        public void SetResourceManager(IAddressablesManager resourceManager)
+#endif
         {
             if (resourceManager == null)
             {
