@@ -385,9 +385,9 @@ namespace GameFramework
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
 #if !ADDRESSABLES_SUPPORT
-        public void SetResourceManager(IResourceManager resourceManager)
+        internal void SetResourceManager(IResourceManager resourceManager)
 #else
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        internal void SetResourceManager(IAddressablesManager resourceManager)
 #endif
         {
             if (resourceManager == null)
