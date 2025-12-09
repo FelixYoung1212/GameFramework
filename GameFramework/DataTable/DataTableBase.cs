@@ -6,6 +6,9 @@
 //------------------------------------------------------------
 
 using GameFramework.Resource;
+#if ADDRESSABLES_SUPPORT
+using GameFramework.Resource.Addressables;
+#endif
 using System;
 
 namespace GameFramework.DataTable
@@ -282,7 +285,11 @@ namespace GameFramework.DataTable
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         internal void SetResourceManager(IResourceManager resourceManager)
+#else
+        internal void SetResourceManager(IAddressablesManager resourceManager)
+#endif
         {
             m_DataProvider.SetResourceManager(resourceManager);
         }
