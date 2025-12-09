@@ -16,12 +16,19 @@ namespace GameFramework.Resource.Addressables
         void LoadAsset(string assetName, int priority, LoadAssetCallbacks loadAssetCallbacks, object userData);
         
         /// <summary>
-        /// 异步加载资源。
+        /// 异步加载二进制资源。
         /// </summary>
-        /// <param name="assetName">要加载资源的名称。</param>
-        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+        /// <param name="binaryAssetName">要加载二进制资源的名称。</param>
+        /// <param name="loadBinaryCallbacks">加载二进制资源回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
-        void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData);
+        void LoadBinary(string binaryAssetName, LoadBinaryCallbacks loadBinaryCallbacks, object userData);
+
+        /// <summary>
+        /// 检查资源是否存在。
+        /// </summary>
+        /// <param name="assetName">要检查资源的名称。</param>
+        /// <returns>检查资源是否存在的结果。</returns>
+        HasAssetResult HasAsset(string assetName);
     }
 }
 #endif
