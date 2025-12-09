@@ -1,5 +1,4 @@
-﻿#if !ADDRESSABLES_SUPPORT
-//------------------------------------------------------------
+﻿//------------------------------------------------------------
 // Game Framework
 // Copyright © 2013-2021 Jiang Yin. All rights reserved.
 // Homepage: https://gameframework.cn/
@@ -7,6 +6,9 @@
 //------------------------------------------------------------
 
 using GameFramework.Resource;
+#if ADDRESSABLES_SUPPORT
+using GameFramework.Resource.Addressables;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -51,7 +53,11 @@ namespace GameFramework.Scene
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
+#if !ADDRESSABLES_SUPPORT
         void SetResourceManager(IResourceManager resourceManager);
+#else
+        void SetResourceManager(IAddressablesManager resourceManager);
+#endif
 
         /// <summary>
         /// 获取场景是否已加载。
@@ -159,4 +165,3 @@ namespace GameFramework.Scene
         void UnloadScene(string sceneAssetName, object userData);
     }
 }
-#endif
