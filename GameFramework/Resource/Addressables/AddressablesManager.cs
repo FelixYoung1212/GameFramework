@@ -71,9 +71,8 @@ namespace GameFramework.Resource.Addressables
         /// 异步加载资源。
         /// </summary>
         /// <param name="assetName">要加载资源的名称。</param>
-        /// <param name="priority">加载资源的优先级。</param>
         /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
-        public void LoadAsset(string assetName, int priority, LoadAssetCallbacks loadAssetCallbacks)
+        public void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks)
         {
             if (string.IsNullOrEmpty(assetName))
             {
@@ -84,26 +83,14 @@ namespace GameFramework.Resource.Addressables
             {
                 throw new GameFrameworkException("Load asset callbacks is invalid.");
             }
-
-            m_ResourceLoader.LoadAsset(assetName, assetType, priority, loadAssetCallbacks, null);
         }
 
-        public void LoadAsset(string assetName, int priority, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        public void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
             throw new System.NotImplementedException();
         }
 
-        public void LoadBinary(string binaryAssetName, LoadBinaryCallbacks loadBinaryCallbacks, object userData)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public HasAssetResult HasAsset(string assetName)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void LoadScene(string sceneAssetName, int priority, LoadSceneCallbacks loadSceneCallbacks, object userData)
+        public void LoadScene(string sceneAssetName, LoadSceneCallbacks loadSceneCallbacks, object userData)
         {
             throw new System.NotImplementedException();
         }

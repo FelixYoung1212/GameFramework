@@ -5,10 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource;
-#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
-#endif
 using System;
 using System.Collections.Generic;
 
@@ -35,11 +32,6 @@ namespace GameFramework.Scene
         event EventHandler<LoadSceneUpdateEventArgs> LoadSceneUpdate;
 
         /// <summary>
-        /// 加载场景时加载依赖资源事件。
-        /// </summary>
-        event EventHandler<LoadSceneDependencyAssetEventArgs> LoadSceneDependencyAsset;
-
-        /// <summary>
         /// 卸载场景成功事件。
         /// </summary>
         event EventHandler<UnloadSceneSuccessEventArgs> UnloadSceneSuccess;
@@ -53,11 +45,7 @@ namespace GameFramework.Scene
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-#if !ADDRESSABLES_SUPPORT
-        void SetResourceManager(IResourceManager resourceManager);
-#else
         void SetResourceManager(IAddressablesManager resourceManager);
-#endif
 
         /// <summary>
         /// 获取场景是否已加载。
@@ -117,13 +105,6 @@ namespace GameFramework.Scene
         void GetUnloadingSceneAssetNames(List<string> results);
 
         /// <summary>
-        /// 检查场景资源是否存在。
-        /// </summary>
-        /// <param name="sceneAssetName">要检查场景资源的名称。</param>
-        /// <returns>场景资源是否存在。</returns>
-        bool HasScene(string sceneAssetName);
-
-        /// <summary>
         /// 加载场景。
         /// </summary>
         /// <param name="sceneAssetName">场景资源名称。</param>
@@ -133,23 +114,8 @@ namespace GameFramework.Scene
         /// 加载场景。
         /// </summary>
         /// <param name="sceneAssetName">场景资源名称。</param>
-        /// <param name="priority">加载场景资源的优先级。</param>
-        void LoadScene(string sceneAssetName, int priority);
-
-        /// <summary>
-        /// 加载场景。
-        /// </summary>
-        /// <param name="sceneAssetName">场景资源名称。</param>
         /// <param name="userData">用户自定义数据。</param>
         void LoadScene(string sceneAssetName, object userData);
-
-        /// <summary>
-        /// 加载场景。
-        /// </summary>
-        /// <param name="sceneAssetName">场景资源名称。</param>
-        /// <param name="priority">加载场景资源的优先级。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        void LoadScene(string sceneAssetName, int priority, object userData);
 
         /// <summary>
         /// 卸载场景。

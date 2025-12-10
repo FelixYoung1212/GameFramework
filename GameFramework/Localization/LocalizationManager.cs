@@ -5,10 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource;
-#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
-#endif
 using System;
 using System.Collections.Generic;
 
@@ -139,21 +136,6 @@ namespace GameFramework.Localization
         }
 
         /// <summary>
-        /// 读取字典时加载依赖资源事件。
-        /// </summary>
-        public event EventHandler<ReadDataDependencyAssetEventArgs> ReadDataDependencyAsset
-        {
-            add
-            {
-                m_DataProvider.ReadDataDependencyAsset += value;
-            }
-            remove
-            {
-                m_DataProvider.ReadDataDependencyAsset -= value;
-            }
-        }
-
-        /// <summary>
         /// 本地化管理器轮询。
         /// </summary>
         /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
@@ -173,11 +155,7 @@ namespace GameFramework.Localization
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-#if !ADDRESSABLES_SUPPORT
-        public void SetResourceManager(IResourceManager resourceManager)
-#else
         public void SetResourceManager(IAddressablesManager resourceManager)
-#endif
         {
             m_DataProvider.SetResourceManager(resourceManager);
         }
@@ -235,31 +213,10 @@ namespace GameFramework.Localization
         /// 读取字典。
         /// </summary>
         /// <param name="dictionaryAssetName">字典资源名称。</param>
-        /// <param name="priority">加载字典资源的优先级。</param>
-        public void ReadData(string dictionaryAssetName, int priority)
-        {
-            m_DataProvider.ReadData(dictionaryAssetName, priority);
-        }
-
-        /// <summary>
-        /// 读取字典。
-        /// </summary>
-        /// <param name="dictionaryAssetName">字典资源名称。</param>
         /// <param name="userData">用户自定义数据。</param>
         public void ReadData(string dictionaryAssetName, object userData)
         {
             m_DataProvider.ReadData(dictionaryAssetName, userData);
-        }
-
-        /// <summary>
-        /// 读取字典。
-        /// </summary>
-        /// <param name="dictionaryAssetName">字典资源名称。</param>
-        /// <param name="priority">加载字典资源的优先级。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void ReadData(string dictionaryAssetName, int priority, object userData)
-        {
-            m_DataProvider.ReadData(dictionaryAssetName, priority, userData);
         }
 
         /// <summary>

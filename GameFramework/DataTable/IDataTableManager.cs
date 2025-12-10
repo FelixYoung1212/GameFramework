@@ -5,10 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource;
-#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
-#endif
 using System;
 using System.Collections.Generic;
 
@@ -39,11 +36,7 @@ namespace GameFramework.DataTable
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-#if !ADDRESSABLES_SUPPORT
-        void SetResourceManager(IResourceManager resourceManager);
-#else
         void SetResourceManager(IAddressablesManager resourceManager);
-#endif
 
         /// <summary>
         /// 设置数据表数据提供者辅助器。

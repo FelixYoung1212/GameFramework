@@ -31,11 +31,6 @@ namespace GameFramework
         event EventHandler<ReadDataUpdateEventArgs> ReadDataUpdate;
 
         /// <summary>
-        /// 读取数据时加载依赖资源事件。
-        /// </summary>
-        event EventHandler<ReadDataDependencyAssetEventArgs> ReadDataDependencyAsset;
-
-        /// <summary>
         /// 读取数据。
         /// </summary>
         /// <param name="dataAssetName">内容资源名称。</param>
@@ -45,23 +40,8 @@ namespace GameFramework
         /// 读取数据。
         /// </summary>
         /// <param name="dataAssetName">内容资源名称。</param>
-        /// <param name="priority">加载数据资源的优先级。</param>
-        void ReadData(string dataAssetName, int priority);
-
-        /// <summary>
-        /// 读取数据。
-        /// </summary>
-        /// <param name="dataAssetName">内容资源名称。</param>
         /// <param name="userData">用户自定义数据。</param>
         void ReadData(string dataAssetName, object userData);
-
-        /// <summary>
-        /// 读取数据。
-        /// </summary>
-        /// <param name="dataAssetName">内容资源名称。</param>
-        /// <param name="priority">加载数据资源的优先级。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        void ReadData(string dataAssetName, int priority, object userData);
 
         /// <summary>
         /// 解析内容。

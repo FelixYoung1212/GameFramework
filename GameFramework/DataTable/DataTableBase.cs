@@ -5,10 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource;
-#if ADDRESSABLES_SUPPORT
 using GameFramework.Resource.Addressables;
-#endif
 using System;
 
 namespace GameFramework.DataTable
@@ -123,21 +120,6 @@ namespace GameFramework.DataTable
         }
 
         /// <summary>
-        /// 读取数据表时加载依赖资源事件。
-        /// </summary>
-        public event EventHandler<ReadDataDependencyAssetEventArgs> ReadDataDependencyAsset
-        {
-            add
-            {
-                m_DataProvider.ReadDataDependencyAsset += value;
-            }
-            remove
-            {
-                m_DataProvider.ReadDataDependencyAsset -= value;
-            }
-        }
-
-        /// <summary>
         /// 读取数据表。
         /// </summary>
         /// <param name="dataTableAssetName">数据表资源名称。</param>
@@ -150,31 +132,10 @@ namespace GameFramework.DataTable
         /// 读取数据表。
         /// </summary>
         /// <param name="dataTableAssetName">数据表资源名称。</param>
-        /// <param name="priority">加载数据表资源的优先级。</param>
-        public void ReadData(string dataTableAssetName, int priority)
-        {
-            m_DataProvider.ReadData(dataTableAssetName, priority);
-        }
-
-        /// <summary>
-        /// 读取数据表。
-        /// </summary>
-        /// <param name="dataTableAssetName">数据表资源名称。</param>
         /// <param name="userData">用户自定义数据。</param>
         public void ReadData(string dataTableAssetName, object userData)
         {
             m_DataProvider.ReadData(dataTableAssetName, userData);
-        }
-
-        /// <summary>
-        /// 读取数据表。
-        /// </summary>
-        /// <param name="dataTableAssetName">数据表资源名称。</param>
-        /// <param name="priority">加载数据表资源的优先级。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void ReadData(string dataTableAssetName, int priority, object userData)
-        {
-            m_DataProvider.ReadData(dataTableAssetName, priority, userData);
         }
 
         /// <summary>
@@ -285,11 +246,7 @@ namespace GameFramework.DataTable
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-#if !ADDRESSABLES_SUPPORT
-        internal void SetResourceManager(IResourceManager resourceManager)
-#else
         internal void SetResourceManager(IAddressablesManager resourceManager)
-#endif
         {
             m_DataProvider.SetResourceManager(resourceManager);
         }
