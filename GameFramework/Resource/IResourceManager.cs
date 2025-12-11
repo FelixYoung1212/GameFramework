@@ -34,6 +34,20 @@
         /// </summary>
         /// <param name="asset">要卸载的资源。</param>
         void UnloadAsset(object asset);
+
+        /// <summary>
+        /// 异步实例化资源。
+        /// </summary>
+        /// <param name="assetName">要加载资源的名称。</param>
+        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        void Instantiate(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData);
+        
+        /// <summary>
+        /// 释放并且销毁实例化资源
+        /// </summary>
+        /// <param name="instance"></param>
+        void ReleaseInstance(object instance);
         
         /// <summary>
         /// 异步加载场景。

@@ -192,6 +192,7 @@
     <Compile Include="Procedure\ProcedureBase.cs" />
     <Compile Include="Procedure\ProcedureManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resource\IAsyncOperation.cs" />
     <Compile Include="Resource\IResourceLoader.cs" />
     <Compile Include="Resource\ResourceManager.cs" />
     <Compile Include="Resource\IResourceManager.cs" />
