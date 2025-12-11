@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GameFramework</RootNamespace>
     <AssemblyName>GameFramework</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -192,9 +192,9 @@
     <Compile Include="Procedure\ProcedureBase.cs" />
     <Compile Include="Procedure\ProcedureManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resource\Addressables\AddressablesManager.AddressablesLoader.cs" />
-    <Compile Include="Resource\Addressables\AddressablesManager.cs" />
-    <Compile Include="Resource\Addressables\IAddressablesManager.cs" />
+    <Compile Include="Resource\IResourceLoader.cs" />
+    <Compile Include="Resource\ResourceManager.cs" />
+    <Compile Include="Resource\IResourceManager.cs" />
     <Compile Include="Resource\LoadAssetCallbacks.cs" />
     <Compile Include="Resource\LoadAssetFailureCallback.cs" />
     <Compile Include="Resource\LoadAssetSuccessCallback.cs" />
