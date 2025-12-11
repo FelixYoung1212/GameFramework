@@ -34,12 +34,5 @@
         /// <param name="unloadSceneCallbacks">卸载场景回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
         void UnloadScene(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks, object userData);
-
-        // /// <summary>
-        // /// 资源加载器轮询。
-        // /// </summary>
-        // /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
-        // /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
-        // void Update(float elapseSeconds, float realElapseSeconds);
     }
 }
