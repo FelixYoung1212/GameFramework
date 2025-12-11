@@ -5,7 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource.Addressables;
+using GameFramework.Resource;
 using System;
 using System.Collections.Generic;
 
@@ -43,7 +43,7 @@ namespace GameFramework.Sound
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        void SetResourceManager(IAddressablesManager resourceManager);
+        void SetResourceManager(IResourceManager resourceManager);
 
         /// <summary>
         /// 设置声音辅助器。

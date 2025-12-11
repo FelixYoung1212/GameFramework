@@ -5,7 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource.Addressables;
+using GameFramework.Resource;
 using System;
 using System.Collections.Generic;
 
@@ -117,7 +117,7 @@ namespace GameFramework.Config
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        public void SetResourceManager(IResourceManager resourceManager)
         {
             m_DataProvider.SetResourceManager(resourceManager);
         }

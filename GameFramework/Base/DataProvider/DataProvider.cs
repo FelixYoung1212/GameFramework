@@ -6,7 +6,6 @@
 //------------------------------------------------------------
 
 using GameFramework.Resource;
-using GameFramework.Resource.Addressables;
 using System;
 
 namespace GameFramework
@@ -22,7 +21,7 @@ namespace GameFramework
 
         private readonly T m_Owner;
         private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
-        private IAddressablesManager m_ResourceManager;
+        private IResourceManager m_ResourceManager;
         private IDataProviderHelper<T> m_DataProviderHelper;
         private EventHandler<ReadDataSuccessEventArgs> m_ReadDataSuccessEventHandler;
         private EventHandler<ReadDataFailureEventArgs> m_ReadDataFailureEventHandler;
@@ -285,7 +284,7 @@ namespace GameFramework
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        internal void SetResourceManager(IAddressablesManager resourceManager)
+        internal void SetResourceManager(IResourceManager resourceManager)
         {
             if (resourceManager == null)
             {

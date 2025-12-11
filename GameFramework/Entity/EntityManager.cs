@@ -7,7 +7,6 @@
 
 using GameFramework.ObjectPool;
 using GameFramework.Resource;
-using GameFramework.Resource.Addressables;
 using System;
 using System.Collections.Generic;
 
@@ -25,7 +24,7 @@ namespace GameFramework.Entity
         private readonly Queue<EntityInfo> m_RecycleQueue;
         private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private IObjectPoolManager m_ObjectPoolManager;
-        private IAddressablesManager m_ResourceManager;
+        private IResourceManager m_ResourceManager;
         private IEntityHelper m_EntityHelper;
         private int m_Serial;
         private bool m_IsShutdown;
@@ -199,7 +198,7 @@ namespace GameFramework.Entity
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        public void SetResourceManager(IResourceManager resourceManager)
         {
             if (resourceManager == null)
             {

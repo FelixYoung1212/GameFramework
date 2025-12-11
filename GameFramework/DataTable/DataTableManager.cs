@@ -5,7 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource.Addressables;
+using GameFramework.Resource;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +17,7 @@ namespace GameFramework.DataTable
     internal sealed partial class DataTableManager : GameFrameworkModule, IDataTableManager
     {
         private readonly Dictionary<TypeNamePair, DataTableBase> m_DataTables;
-        private IAddressablesManager m_ResourceManager;
+        private IResourceManager m_ResourceManager;
         private IDataProviderHelper<DataTableBase> m_DataProviderHelper;
         private IDataTableHelper m_DataTableHelper;
 
@@ -80,7 +80,7 @@ namespace GameFramework.DataTable
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        public void SetResourceManager(IResourceManager resourceManager)
         {
             if (resourceManager == null)
             {

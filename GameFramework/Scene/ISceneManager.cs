@@ -5,7 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource.Addressables;
+using GameFramework.Resource;
 using System;
 using System.Collections.Generic;
 
@@ -45,7 +45,7 @@ namespace GameFramework.Scene
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        void SetResourceManager(IAddressablesManager resourceManager);
+        void SetResourceManager(IResourceManager resourceManager);
 
         /// <summary>
         /// 获取场景是否已加载。

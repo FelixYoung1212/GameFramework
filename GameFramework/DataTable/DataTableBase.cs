@@ -5,7 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
-using GameFramework.Resource.Addressables;
+using GameFramework.Resource;
 using System;
 
 namespace GameFramework.DataTable
@@ -246,7 +246,7 @@ namespace GameFramework.DataTable
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        internal void SetResourceManager(IAddressablesManager resourceManager)
+        internal void SetResourceManager(IResourceManager resourceManager)
         {
             m_DataProvider.SetResourceManager(resourceManager);
         }

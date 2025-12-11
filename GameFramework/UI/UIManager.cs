@@ -7,7 +7,6 @@
 
 using GameFramework.ObjectPool;
 using GameFramework.Resource;
-using GameFramework.Resource.Addressables;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +23,7 @@ namespace GameFramework.UI
         private readonly Queue<IUIForm> m_RecycleQueue;
         private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private IObjectPoolManager m_ObjectPoolManager;
-        private IAddressablesManager m_ResourceManager;
+        private IResourceManager m_ResourceManager;
         private IObjectPool<UIFormInstanceObject> m_InstancePool;
         private IUIFormHelper m_UIFormHelper;
         private int m_Serial;
@@ -239,7 +238,7 @@ namespace GameFramework.UI
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        public void SetResourceManager(IResourceManager resourceManager)
         {
             if (resourceManager == null)
             {

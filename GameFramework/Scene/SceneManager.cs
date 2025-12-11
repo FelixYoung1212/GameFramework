@@ -6,7 +6,6 @@
 //------------------------------------------------------------
 
 using GameFramework.Resource;
-using GameFramework.Resource.Addressables;
 using System;
 using System.Collections.Generic;
 
@@ -22,7 +21,7 @@ namespace GameFramework.Scene
         private readonly List<string> m_UnloadingSceneAssetNames;
         private readonly LoadSceneCallbacks m_LoadSceneCallbacks;
         private readonly UnloadSceneCallbacks m_UnloadSceneCallbacks;
-        private IAddressablesManager m_ResourceManager;
+        private IResourceManager m_ResourceManager;
         private EventHandler<LoadSceneSuccessEventArgs> m_LoadSceneSuccessEventHandler;
         private EventHandler<LoadSceneFailureEventArgs> m_LoadSceneFailureEventHandler;
         private EventHandler<LoadSceneUpdateEventArgs> m_LoadSceneUpdateEventHandler;
@@ -168,7 +167,7 @@ namespace GameFramework.Scene
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        public void SetResourceManager(IResourceManager resourceManager)
         {
             if (resourceManager == null)
             {

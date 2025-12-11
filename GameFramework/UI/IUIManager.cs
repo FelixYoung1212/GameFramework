@@ -6,7 +6,7 @@
 //------------------------------------------------------------
 
 using GameFramework.ObjectPool;
-using GameFramework.Resource.Addressables;
+using GameFramework.Resource;
 using System;
 using System.Collections.Generic;
 
@@ -91,7 +91,7 @@ namespace GameFramework.UI
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        void SetResourceManager(IAddressablesManager resourceManager);
+        void SetResourceManager(IResourceManager resourceManager);
 
         /// <summary>
         /// 设置界面辅助器。

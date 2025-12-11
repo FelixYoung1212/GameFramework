@@ -6,7 +6,6 @@
 //------------------------------------------------------------
 
 using GameFramework.Resource;
-using GameFramework.Resource.Addressables;
 using System;
 using System.Collections.Generic;
 
@@ -21,7 +20,7 @@ namespace GameFramework.Sound
         private readonly List<int> m_SoundsBeingLoaded;
         private readonly HashSet<int> m_SoundsToReleaseOnLoad;
         private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
-        private IAddressablesManager m_ResourceManager;
+        private IResourceManager m_ResourceManager;
         private ISoundHelper m_SoundHelper;
         private int m_Serial;
         private EventHandler<PlaySoundSuccessEventArgs> m_PlaySoundSuccessEventHandler;
@@ -125,7 +124,7 @@ namespace GameFramework.Sound
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
-        public void SetResourceManager(IAddressablesManager resourceManager)
+        public void SetResourceManager(IResourceManager resourceManager)
         {
             if (resourceManager == null)
             {

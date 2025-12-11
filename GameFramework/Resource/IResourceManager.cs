@@ -1,9 +1,9 @@
-﻿namespace GameFramework.Resource.Addressables
+﻿namespace GameFramework.Resource
 {
     /// <summary>
-    /// Addressables资源管理器接口
+    /// 资源管理器接口
     /// </summary>
-    public interface IAddressablesManager
+    public interface IResourceManager
     {
         /// <summary>
         /// 获取当前资源适用的游戏版本号。
@@ -30,6 +30,12 @@
         void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData);
         
         /// <summary>
+        /// 卸载资源。
+        /// </summary>
+        /// <param name="asset">要卸载的资源。</param>
+        void UnloadAsset(object asset);
+        
+        /// <summary>
         /// 异步加载场景。
         /// </summary>
         /// <param name="sceneAssetName">要加载场景资源的名称。</param>
@@ -44,11 +50,5 @@
         /// <param name="unloadSceneCallbacks">卸载场景回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
         void UnloadScene(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks, object userData);
-        
-        /// <summary>
-        /// 卸载资源。
-        /// </summary>
-        /// <param name="asset">要卸载的资源。</param>
-        void UnloadAsset(object asset);
     }
 }
