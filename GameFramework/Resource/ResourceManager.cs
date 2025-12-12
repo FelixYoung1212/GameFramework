@@ -60,6 +60,7 @@ namespace GameFramework.Resource
         /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
         internal override void Update(float elapseSeconds, float realElapseSeconds)
         {
+            m_ResourceLoader.Update(elapseSeconds, realElapseSeconds);
         }
 
         /// <summary>
@@ -67,6 +68,11 @@ namespace GameFramework.Resource
         /// </summary>
         internal override void Shutdown()
         {
+            if (m_ResourceLoader != null)
+            {
+                m_ResourceLoader.Shutdown();
+                m_ResourceLoader = null;
+            }
         }
 
         /// <summary>
@@ -79,11 +85,6 @@ namespace GameFramework.Resource
             if (string.IsNullOrEmpty(assetName))
             {
                 throw new GameFrameworkException("Asset name is invalid.");
-            }
-
-            if (m_ResourceLoader == null)
-            {
-                throw new GameFrameworkException("You must set Resource loader first.");
             }
 
             return m_ResourceLoader.LoadAsset(assetName);
@@ -110,11 +111,6 @@ namespace GameFramework.Resource
                 throw new GameFrameworkException("Scene asset name is invalid.");
             }
 
-            if (m_ResourceLoader == null)
-            {
-                throw new GameFrameworkException("You must set Resource loader first.");
-            }
-
             return m_ResourceLoader.LoadScene(sceneAssetName);
         }
 
@@ -129,13 +125,7 @@ namespace GameFramework.Resource
                 throw new GameFrameworkException("Scene asset name is invalid.");
             }
 
-            if (m_ResourceLoader == null)
-            {
-                throw new GameFrameworkException("You must set Resource loader first.");
-            }
-
             AsyncOperationHandleBase op = m_ResourceLoader.UnloadScene(sceneAssetName);
-            op.Start();
             return op;
         }
 
@@ -148,11 +138,6 @@ namespace GameFramework.Resource
             if (asset == null)
             {
                 throw new GameFrameworkException("Asset is invalid.");
-            }
-
-            if (m_ResourceLoader == null)
-            {
-                throw new GameFrameworkException("You must set Resource loader first.");
             }
 
             m_ResourceLoader.UnloadAsset(asset);

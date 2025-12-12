@@ -17,6 +17,24 @@ namespace GameFramework.Resource
             {
                 m_ResourceManager = resourceManager;
             }
+            
+            /// <summary>
+            /// 加载资源器轮询。
+            /// </summary>
+            /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
+            /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
+            public void Update(float elapseSeconds, float realElapseSeconds)
+            {
+                
+            }
+            
+            /// <summary>
+            /// 关闭并清理加载资源器。
+            /// </summary>
+            public void Shutdown()
+            {
+                
+            }
 
             /// <summary>
             /// 异步加载资源。
