@@ -3,12 +3,12 @@ namespace GameFramework.Resource
     /// <summary>
     /// 资源管理器
     /// </summary>
-    internal sealed class ResourceManager : GameFrameworkModule, IResourceManager
+    internal sealed partial class ResourceManager : GameFrameworkModule, IResourceManager
     {
         private string m_ApplicableGameVersion;
         private int m_InternalResourceVersion;
-        private IResourceLoader m_ResourceLoader;
-        
+        private ResourceLoader m_ResourceLoader;
+
         /// <summary>
         /// 初始化资源管理器的新实例。
         /// </summary>
@@ -16,9 +16,9 @@ namespace GameFramework.Resource
         {
             m_ApplicableGameVersion = null;
             m_InternalResourceVersion = 0;
-            m_ResourceLoader = null;
+            m_ResourceLoader = new ResourceLoader(this);
         }
-        
+
         /// <summary>
         /// 获取游戏框架模块优先级。
         /// </summary>
@@ -54,20 +54,6 @@ namespace GameFramework.Resource
         }
 
         /// <summary>
-        /// 设置资源加载器。
-        /// </summary>
-        /// <param name="resourceLoader">资源加载器。</param>
-        public void SetResourceLoader(IResourceLoader resourceLoader)
-        {
-            if (resourceLoader == null)
-            {
-                throw new GameFrameworkException("Resource loader is invalid.");
-            }
-
-            m_ResourceLoader = resourceLoader;
-        }
-
-        /// <summary>
         /// 资源管理器轮询。
         /// </summary>
         /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
@@ -87,65 +73,41 @@ namespace GameFramework.Resource
         /// 异步加载资源。
         /// </summary>
         /// <param name="assetName">要加载资源的名称。</param>
-        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
-        public void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks)
-        {
-            LoadAsset(assetName, loadAssetCallbacks, null);
-        }
-
-        /// <summary>
-        /// 异步加载资源。
-        /// </summary>
-        /// <param name="assetName">要加载资源的名称。</param>
-        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void LoadAsset(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        /// <returns>异步加载资源句柄</returns>
+        public AsyncOperationHandleBase LoadAsset(string assetName)
         {
             if (string.IsNullOrEmpty(assetName))
             {
                 throw new GameFrameworkException("Asset name is invalid.");
             }
 
-            if (loadAssetCallbacks == null)
-            {
-                throw new GameFrameworkException("Load asset callbacks is invalid.");
-            }
-
             if (m_ResourceLoader == null)
             {
                 throw new GameFrameworkException("You must set Resource loader first.");
             }
 
-            m_ResourceLoader.LoadAsset(assetName, loadAssetCallbacks, null);
+            return m_ResourceLoader.LoadAsset(assetName);
         }
-        
+
         /// <summary>
         /// 异步实例化资源。
         /// </summary>
-        /// <param name="assetName">要加载资源的名称。</param>
-        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void Instantiate(string assetName, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        /// <param name="asset">要实例化的资源。</param>
+        public void Instantiate(object asset)
         {
-            
+            m_ResourceLoader.Instantiate(asset);
         }
 
         /// <summary>
         /// 异步加载场景。
         /// </summary>
         /// <param name="sceneAssetName">要加载场景资源的名称。</param>
-        /// <param name="loadSceneCallbacks">加载场景回调函数集。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void LoadScene(string sceneAssetName, LoadSceneCallbacks loadSceneCallbacks, object userData)
+        /// <returns>异步加载场景句柄</returns>
+        public AsyncOperationHandleBase LoadScene(string sceneAssetName)
         {
             if (string.IsNullOrEmpty(sceneAssetName))
             {
                 throw new GameFrameworkException("Scene asset name is invalid.");
-            }
-
-            if (loadSceneCallbacks == null)
-            {
-                throw new GameFrameworkException("Load scene callbacks is invalid.");
             }
 
             if (m_ResourceLoader == null)
@@ -153,33 +115,28 @@ namespace GameFramework.Resource
                 throw new GameFrameworkException("You must set Resource loader first.");
             }
 
-            m_ResourceLoader.LoadScene(sceneAssetName, loadSceneCallbacks, userData);
+            return m_ResourceLoader.LoadScene(sceneAssetName);
         }
 
         /// <summary>
         /// 异步卸载场景。
         /// </summary>
         /// <param name="sceneAssetName">要卸载场景资源的名称。</param>
-        /// <param name="unloadSceneCallbacks">卸载场景回调函数集。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        public void UnloadScene(string sceneAssetName, UnloadSceneCallbacks unloadSceneCallbacks, object userData)
+        public AsyncOperationHandleBase UnloadScene(string sceneAssetName)
         {
             if (string.IsNullOrEmpty(sceneAssetName))
             {
                 throw new GameFrameworkException("Scene asset name is invalid.");
             }
 
-            if (unloadSceneCallbacks == null)
-            {
-                throw new GameFrameworkException("Unload scene callbacks is invalid.");
-            }
-            
             if (m_ResourceLoader == null)
             {
                 throw new GameFrameworkException("You must set Resource loader first.");
             }
 
-            m_ResourceLoader.UnloadScene(sceneAssetName, unloadSceneCallbacks, userData);
+            AsyncOperationHandleBase op = m_ResourceLoader.UnloadScene(sceneAssetName);
+            op.Start();
+            return op;
         }
 
         /// <summary>
@@ -207,7 +164,7 @@ namespace GameFramework.Resource
         /// <param name="instance"></param>
         public void ReleaseInstance(object instance)
         {
-            
+            m_ResourceLoader.ReleaseInstance(instance);
         }
     }
 }

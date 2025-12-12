@@ -19,8 +19,6 @@ namespace GameFramework.Scene
         private readonly List<string> m_LoadedSceneAssetNames;
         private readonly List<string> m_LoadingSceneAssetNames;
         private readonly List<string> m_UnloadingSceneAssetNames;
-        private readonly LoadSceneCallbacks m_LoadSceneCallbacks;
-        private readonly UnloadSceneCallbacks m_UnloadSceneCallbacks;
         private IResourceManager m_ResourceManager;
         private EventHandler<LoadSceneSuccessEventArgs> m_LoadSceneSuccessEventHandler;
         private EventHandler<LoadSceneFailureEventArgs> m_LoadSceneFailureEventHandler;
@@ -36,8 +34,6 @@ namespace GameFramework.Scene
             m_LoadedSceneAssetNames = new List<string>();
             m_LoadingSceneAssetNames = new List<string>();
             m_UnloadingSceneAssetNames = new List<string>();
-            m_LoadSceneCallbacks = new LoadSceneCallbacks(LoadSceneSuccessCallback, LoadSceneFailureCallback, LoadSceneUpdateCallback);
-            m_UnloadSceneCallbacks = new UnloadSceneCallbacks(UnloadSceneSuccessCallback, UnloadSceneFailureCallback);
             m_ResourceManager = null;
             m_LoadSceneSuccessEventHandler = null;
             m_LoadSceneFailureEventHandler = null;
@@ -336,7 +332,10 @@ namespace GameFramework.Scene
             }
 
             m_LoadingSceneAssetNames.Add(sceneAssetName);
-            m_ResourceManager.LoadScene(sceneAssetName, m_LoadSceneCallbacks, userData);
+            AsyncOperationHandleBase op = m_ResourceManager.LoadScene(sceneAssetName);
+            op.OnSucceeded += handle => LoadSceneSuccessCallback(sceneAssetName, handle.Duration, userData);
+            op.OnFailed += handle => LoadSceneFailureCallback(sceneAssetName, handle.ErrorMessage, userData);
+            op.OnProgress += handle => LoadSceneUpdateCallback(sceneAssetName, handle.Progress, userData);
         }
 
         /// <summary>
@@ -381,7 +380,9 @@ namespace GameFramework.Scene
             }
 
             m_UnloadingSceneAssetNames.Add(sceneAssetName);
-            m_ResourceManager.UnloadScene(sceneAssetName, m_UnloadSceneCallbacks, userData);
+            AsyncOperationHandleBase op = m_ResourceManager.UnloadScene(sceneAssetName);
+            op.OnSucceeded += handle => UnloadSceneSuccessCallback(sceneAssetName, userData);
+            op.OnFailed += handle => UnloadSceneFailureCallback(sceneAssetName, userData);
         }
 
         private void LoadSceneSuccessCallback(string sceneAssetName, float duration, object userData)

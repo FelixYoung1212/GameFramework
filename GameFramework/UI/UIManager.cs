@@ -21,7 +21,6 @@ namespace GameFramework.UI
         private readonly Dictionary<int, string> m_UIFormsBeingLoaded;
         private readonly HashSet<int> m_UIFormsToReleaseOnLoad;
         private readonly Queue<IUIForm> m_RecycleQueue;
-        private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private IObjectPoolManager m_ObjectPoolManager;
         private IResourceManager m_ResourceManager;
         private IObjectPool<UIFormInstanceObject> m_InstancePool;
@@ -42,7 +41,6 @@ namespace GameFramework.UI
             m_UIFormsBeingLoaded = new Dictionary<int, string>();
             m_UIFormsToReleaseOnLoad = new HashSet<int>();
             m_RecycleQueue = new Queue<IUIForm>();
-            m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback);
             m_ObjectPoolManager = null;
             m_ResourceManager = null;
             m_InstancePool = null;
@@ -684,7 +682,11 @@ namespace GameFramework.UI
             if (uiFormInstanceObject == null)
             {
                 m_UIFormsBeingLoaded.Add(serialId, uiFormAssetName);
-                m_ResourceManager.LoadAsset(uiFormAssetName, m_LoadAssetCallbacks, OpenUIFormInfo.Create(serialId, uiGroup, pauseCoveredUIForm, userData));
+                OpenUIFormInfo openUiFormInfo = OpenUIFormInfo.Create(serialId, uiGroup, pauseCoveredUIForm, userData);
+                AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(uiFormAssetName);
+                op.OnSucceeded += handle => LoadAssetSuccessCallback(uiFormAssetName, handle.Result, handle.Duration, openUiFormInfo);
+                op.OnFailed += handle => LoadAssetFailureCallback(uiFormAssetName, handle.ErrorMessage, openUiFormInfo);
+                op.OnProgress += handle => LoadAssetUpdateCallback(uiFormAssetName, handle.Progress, openUiFormInfo);
             }
             else
             {
@@ -904,9 +906,8 @@ namespace GameFramework.UI
             }
         }
 
-        private void LoadAssetSuccessCallback(string uiFormAssetName, object uiFormAsset, float duration, object userData)
+        private void LoadAssetSuccessCallback(string uiFormAssetName, object uiFormAsset, float duration, OpenUIFormInfo openUIFormInfo)
         {
-            OpenUIFormInfo openUIFormInfo = (OpenUIFormInfo)userData;
             if (openUIFormInfo == null)
             {
                 throw new GameFrameworkException("Open UI form info is invalid.");
@@ -928,9 +929,8 @@ namespace GameFramework.UI
             ReferencePool.Release(openUIFormInfo);
         }
 
-        private void LoadAssetFailureCallback(string uiFormAssetName, string errorMessage, object userData)
+        private void LoadAssetFailureCallback(string uiFormAssetName, string errorMessage, OpenUIFormInfo openUIFormInfo)
         {
-            OpenUIFormInfo openUIFormInfo = (OpenUIFormInfo)userData;
             if (openUIFormInfo == null)
             {
                 throw new GameFrameworkException("Open UI form info is invalid.");
@@ -955,9 +955,8 @@ namespace GameFramework.UI
             throw new GameFrameworkException(appendErrorMessage);
         }
 
-        private void LoadAssetUpdateCallback(string uiFormAssetName, float progress, object userData)
+        private void LoadAssetUpdateCallback(string uiFormAssetName, float progress, OpenUIFormInfo openUIFormInfo)
         {
-            OpenUIFormInfo openUIFormInfo = (OpenUIFormInfo)userData;
             if (openUIFormInfo == null)
             {
                 throw new GameFrameworkException("Open UI form info is invalid.");

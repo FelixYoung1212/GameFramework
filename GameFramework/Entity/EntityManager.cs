@@ -22,7 +22,6 @@ namespace GameFramework.Entity
         private readonly Dictionary<int, int> m_EntitiesBeingLoaded;
         private readonly HashSet<int> m_EntitiesToReleaseOnLoad;
         private readonly Queue<EntityInfo> m_RecycleQueue;
-        private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private IObjectPoolManager m_ObjectPoolManager;
         private IResourceManager m_ResourceManager;
         private IEntityHelper m_EntityHelper;
@@ -43,7 +42,6 @@ namespace GameFramework.Entity
             m_EntitiesBeingLoaded = new Dictionary<int, int>();
             m_EntitiesToReleaseOnLoad = new HashSet<int>();
             m_RecycleQueue = new Queue<EntityInfo>();
-            m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback);
             m_ObjectPoolManager = null;
             m_ResourceManager = null;
             m_EntityHelper = null;
@@ -606,7 +604,11 @@ namespace GameFramework.Entity
             {
                 int serialId = ++m_Serial;
                 m_EntitiesBeingLoaded.Add(entityId, serialId);
-                m_ResourceManager.LoadAsset(entityAssetName, m_LoadAssetCallbacks, ShowEntityInfo.Create(serialId, entityId, entityGroup, userData));
+                ShowEntityInfo showEntityInfo = ShowEntityInfo.Create(serialId, entityId, entityGroup, userData);
+                AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(entityAssetName);
+                op.OnSucceeded += handle => LoadAssetSuccessCallback(entityAssetName, handle.Result, handle.Duration, showEntityInfo);
+                op.OnFailed += handle => LoadAssetFailureCallback(entityAssetName, handle.ErrorMessage, showEntityInfo);
+                op.OnProgress += handle => LoadAssetUpdateCallback(entityAssetName, handle.Progress, showEntityInfo);
                 return;
             }
 
@@ -1199,9 +1201,8 @@ namespace GameFramework.Entity
             m_RecycleQueue.Enqueue(entityInfo);
         }
 
-        private void LoadAssetSuccessCallback(string entityAssetName, object entityAsset, float duration, object userData)
+        private void LoadAssetSuccessCallback(string entityAssetName, object entityAsset, float duration, ShowEntityInfo showEntityInfo)
         {
-            ShowEntityInfo showEntityInfo = (ShowEntityInfo)userData;
             if (showEntityInfo == null)
             {
                 throw new GameFrameworkException("Show entity info is invalid.");
@@ -1223,9 +1224,8 @@ namespace GameFramework.Entity
             ReferencePool.Release(showEntityInfo);
         }
 
-        private void LoadAssetFailureCallback(string entityAssetName, string errorMessage, object userData)
+        private void LoadAssetFailureCallback(string entityAssetName, string errorMessage, ShowEntityInfo showEntityInfo)
         {
-            ShowEntityInfo showEntityInfo = (ShowEntityInfo)userData;
             if (showEntityInfo == null)
             {
                 throw new GameFrameworkException("Show entity info is invalid.");
@@ -1250,9 +1250,8 @@ namespace GameFramework.Entity
             throw new GameFrameworkException(appendErrorMessage);
         }
 
-        private void LoadAssetUpdateCallback(string entityAssetName, float progress, object userData)
+        private void LoadAssetUpdateCallback(string entityAssetName, float progress, ShowEntityInfo showEntityInfo)
         {
-            ShowEntityInfo showEntityInfo = (ShowEntityInfo)userData;
             if (showEntityInfo == null)
             {
                 throw new GameFrameworkException("Show entity info is invalid.");

@@ -20,7 +20,6 @@ namespace GameFramework
         private static byte[] s_CachedBytes = null;
 
         private readonly T m_Owner;
-        private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private IResourceManager m_ResourceManager;
         private IDataProviderHelper<T> m_DataProviderHelper;
         private EventHandler<ReadDataSuccessEventArgs> m_ReadDataSuccessEventHandler;
@@ -34,7 +33,6 @@ namespace GameFramework
         public DataProvider(T owner)
         {
             m_Owner = owner;
-            m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback);
             m_ResourceManager = null;
             m_DataProviderHelper = null;
             m_ReadDataSuccessEventHandler = null;
@@ -151,7 +149,10 @@ namespace GameFramework
                 throw new GameFrameworkException("You must set data provider helper first.");
             }
 
-            m_ResourceManager.LoadAsset(dataAssetName, m_LoadAssetCallbacks, userData);
+            AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(dataAssetName);
+            op.OnSucceeded += handle => LoadAssetSuccessCallback(dataAssetName, handle.Result, handle.Duration, userData);
+            op.OnFailed += handle => LoadAssetFailureCallback(dataAssetName, handle.ErrorMessage, userData);
+            op.OnProgress += handle => LoadAssetUpdateCallback(dataAssetName, handle.Progress, userData);
         }
 
         /// <summary>

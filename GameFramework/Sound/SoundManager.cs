@@ -19,7 +19,6 @@ namespace GameFramework.Sound
         private readonly Dictionary<string, SoundGroup> m_SoundGroups;
         private readonly List<int> m_SoundsBeingLoaded;
         private readonly HashSet<int> m_SoundsToReleaseOnLoad;
-        private readonly LoadAssetCallbacks m_LoadAssetCallbacks;
         private IResourceManager m_ResourceManager;
         private ISoundHelper m_SoundHelper;
         private int m_Serial;
@@ -35,7 +34,6 @@ namespace GameFramework.Sound
             m_SoundGroups = new Dictionary<string, SoundGroup>(StringComparer.Ordinal);
             m_SoundsBeingLoaded = new List<int>();
             m_SoundsToReleaseOnLoad = new HashSet<int>();
-            m_LoadAssetCallbacks = new LoadAssetCallbacks(LoadAssetSuccessCallback, LoadAssetFailureCallback, LoadAssetUpdateCallback);
             m_ResourceManager = null;
             m_SoundHelper = null;
             m_Serial = 0;
@@ -417,7 +415,11 @@ namespace GameFramework.Sound
             }
 
             m_SoundsBeingLoaded.Add(serialId);
-            m_ResourceManager.LoadAsset(soundAssetName, m_LoadAssetCallbacks, PlaySoundInfo.Create(serialId, soundGroup, playSoundParams, userData));
+            PlaySoundInfo playSoundInfo = PlaySoundInfo.Create(serialId, soundGroup, playSoundParams, userData);
+            AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(soundAssetName);
+            op.OnSucceeded += handle => LoadAssetSuccessCallback(soundAssetName, handle.Result, handle.Duration, playSoundInfo);
+            op.OnFailed += handle => LoadAssetFailureCallback(soundAssetName, handle.ErrorMessage, playSoundInfo);
+            op.OnProgress += handle => LoadAssetUpdateCallback(soundAssetName, handle.Progress, playSoundInfo);
             return serialId;
         }
 
@@ -542,9 +544,8 @@ namespace GameFramework.Sound
             throw new GameFrameworkException(Utility.Text.Format("Can not find sound '{0}'.", serialId));
         }
 
-        private void LoadAssetSuccessCallback(string soundAssetName, object soundAsset, float duration, object userData)
+        private void LoadAssetSuccessCallback(string soundAssetName, object soundAsset, float duration, PlaySoundInfo playSoundInfo)
         {
-            PlaySoundInfo playSoundInfo = (PlaySoundInfo)userData;
             if (playSoundInfo == null)
             {
                 throw new GameFrameworkException("Play sound info is invalid.");
@@ -612,9 +613,8 @@ namespace GameFramework.Sound
             throw new GameFrameworkException(errorMessage);
         }
         
-        private void LoadAssetFailureCallback(string soundAssetName, string errorMessage, object userData)
+        private void LoadAssetFailureCallback(string soundAssetName, string errorMessage, PlaySoundInfo playSoundInfo)
         {
-            PlaySoundInfo playSoundInfo = (PlaySoundInfo)userData;
             if (playSoundInfo == null)
             {
                 throw new GameFrameworkException("Play sound info is invalid.");
@@ -650,9 +650,8 @@ namespace GameFramework.Sound
             throw new GameFrameworkException(appendErrorMessage);
         }
 
-        private void LoadAssetUpdateCallback(string soundAssetName, float progress, object userData)
+        private void LoadAssetUpdateCallback(string soundAssetName, float progress, PlaySoundInfo playSoundInfo)
         {
-            PlaySoundInfo playSoundInfo = (PlaySoundInfo)userData;
             if (playSoundInfo == null)
             {
                 throw new GameFrameworkException("Play sound info is invalid.");

@@ -23,6 +23,16 @@ namespace GameFramework.Resource
         public abstract object Result { get; protected set; }
 
         /// <summary>
+        /// 异步加载资源错误信息
+        /// </summary>
+        public abstract string ErrorMessage { get; protected set; }
+
+        /// <summary>
+        /// 异步资源加载耗时
+        /// </summary>
+        public float Duration { get; private set; }
+
+        /// <summary>
         /// 异步加载资源进度更新事件
         /// </summary>
         public event Action<AsyncOperationHandleBase> OnProgress;
@@ -72,7 +82,13 @@ namespace GameFramework.Resource
         /// </summary>
         internal void Start()
         {
+            if (m_IsRunning)
+            {
+                return;
+            }
+
             m_IsRunning = true;
+            Duration = 0;
         }
 
         /// <summary>
@@ -107,6 +123,8 @@ namespace GameFramework.Resource
                 default:
                     throw new GameFrameworkException(Utility.Text.Format("Not supported status '{0}'.", Status));
             }
+
+            Duration += realElapseSeconds;
         }
 
         private void ClearEvents()
@@ -126,7 +144,9 @@ namespace GameFramework.Resource
             m_IsRunning = false;
             Status = AsyncOperationStatus.None;
             Progress = 0;
+            Duration = 0;
             Result = null;
+            ErrorMessage = null;
         }
     }
 }
