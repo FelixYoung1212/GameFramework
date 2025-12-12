@@ -16,7 +16,7 @@ namespace GameFramework.Resource
         {
             m_ApplicableGameVersion = null;
             m_InternalResourceVersion = 0;
-            m_ResourceLoader = new ResourceLoader(this);
+            m_ResourceLoader = new ResourceLoader();
         }
 
         /// <summary>
@@ -51,6 +51,20 @@ namespace GameFramework.Resource
             {
                 return m_InternalResourceVersion;
             }
+        }
+        
+        /// <summary>
+        /// 设置资源辅助器。
+        /// </summary>
+        /// <param name="resourceHelper">资源辅助器。</param>
+        public void SetResourceHelper(IResourceHelper resourceHelper)
+        {
+            if (resourceHelper == null)
+            {
+                throw new GameFrameworkException("Resource helper is invalid.");
+            }
+
+            m_ResourceLoader.SetResourceHelper(resourceHelper);
         }
 
         /// <summary>

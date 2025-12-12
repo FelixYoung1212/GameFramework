@@ -195,6 +195,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resource\AsyncOperationHandleBase.cs" />
     <Compile Include="Resource\AsyncOperationStatus.cs" />
+    <Compile Include="Resource\IResourceHelper.cs" />
     <Compile Include="Resource\ResourceManager.cs" />
     <Compile Include="Resource\IResourceManager.cs" />
     <Compile Include="Resource\ResourceManager.ResourceLoader.cs" />
