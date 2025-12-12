@@ -16,6 +16,12 @@
         int InternalResourceVersion { get; }
 
         /// <summary>
+        /// 设置资源辅助器。
+        /// </summary>
+        /// <param name="resourceHelper">资源辅助器。</param>
+        void SetResourceHelper(IResourceHelper resourceHelper);
+
+        /// <summary>
         /// 异步加载资源。
         /// </summary>
         /// <param name="assetName">要加载资源的名称。</param>
