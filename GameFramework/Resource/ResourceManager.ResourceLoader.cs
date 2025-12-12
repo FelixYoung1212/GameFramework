@@ -8,7 +8,7 @@ namespace GameFramework.Resource
         /// <summary>
         /// 资源加载器
         /// </summary>
-        private sealed partial class ResourceLoader
+        private sealed class ResourceLoader
         {
             private IResourceHelper m_ResourceHelper;
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadedAssetNameToHandleMap;
