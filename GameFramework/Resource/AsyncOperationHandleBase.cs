@@ -5,27 +5,27 @@ namespace GameFramework.Resource
     /// <summary>
     /// 异步加载资源句柄基类
     /// </summary>
-    public abstract class AsyncOperationHandleBase : IReference
+    public abstract class AsyncOperationHandleBase
     {
         /// <summary>
         /// 异步加载资源进度
         /// </summary>
-        public abstract float Progress { get; protected set; }
+        public abstract float Progress { get; }
 
         /// <summary>
         /// 异步加载资源状态
         /// </summary>
-        public abstract AsyncOperationStatus Status { get; protected set; }
+        public abstract AsyncOperationStatus Status { get; }
 
         /// <summary>
         /// 异步资源加载结果
         /// </summary>
-        public abstract object Result { get; protected set; }
+        public abstract object Result { get; }
 
         /// <summary>
         /// 异步加载资源错误信息
         /// </summary>
-        public abstract string ErrorMessage { get; protected set; }
+        public abstract string ErrorMessage { get; }
 
         /// <summary>
         /// 异步资源加载耗时
@@ -132,21 +132,6 @@ namespace GameFramework.Resource
             OnProgress = null;
             OnSucceeded = null;
             OnFailed = null;
-        }
-
-        /// <summary>
-        /// 清理引用。
-        /// </summary>
-        public void Clear()
-        {
-            ClearEvents();
-            m_ReferenceCount = 1;
-            m_IsRunning = false;
-            Status = AsyncOperationStatus.None;
-            Progress = 0;
-            Duration = 0;
-            Result = null;
-            ErrorMessage = null;
         }
     }
 }

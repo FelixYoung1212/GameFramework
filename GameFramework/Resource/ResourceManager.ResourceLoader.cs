@@ -14,6 +14,9 @@ namespace GameFramework.Resource
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadedAssetNameToHandleMap;
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadedSceneNameToHandleMap;
             private readonly Dictionary<string, AsyncOperationHandleBase> m_UnloadSceneNameToHandleMap;
+            private readonly List<string> m_LoadedAssetHandlesToRemove;
+            private readonly List<string> m_LoadedSceneHandlesToRemove;
+            private readonly List<string> m_UnloadSceneHandlesToRemove;
 
             /// <summary>
             /// 初始化加载资源器的新实例。
@@ -23,6 +26,9 @@ namespace GameFramework.Resource
                 m_LoadedAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>();
                 m_LoadedSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_UnloadSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_LoadedAssetHandlesToRemove = new List<string>();
+                m_LoadedSceneHandlesToRemove = new List<string>();
+                m_UnloadSceneHandlesToRemove = new List<string>();
             }
 
             /// <summary>
@@ -60,6 +66,30 @@ namespace GameFramework.Resource
                 {
                     kvp.Value.Update(elapseSeconds, realElapseSeconds);
                 }
+
+                if (m_LoadedAssetHandlesToRemove.Count > 0)
+                {
+                    foreach (var assetName in m_LoadedAssetHandlesToRemove)
+                    {
+                        m_LoadedAssetNameToHandleMap.Remove(assetName);
+                    }
+                }
+
+                if (m_LoadedSceneHandlesToRemove.Count > 0)
+                {
+                    foreach (var sceneName in m_LoadedSceneHandlesToRemove)
+                    {
+                        m_LoadedSceneNameToHandleMap.Remove(sceneName);
+                    }
+                }
+
+                if (m_UnloadSceneHandlesToRemove.Count > 0)
+                {
+                    foreach (var sceneName in m_UnloadSceneHandlesToRemove)
+                    {
+                        m_UnloadSceneNameToHandleMap.Remove(sceneName);
+                    }
+                }
             }
 
             /// <summary>
@@ -70,6 +100,9 @@ namespace GameFramework.Resource
                 m_LoadedAssetNameToHandleMap.Clear();
                 m_LoadedSceneNameToHandleMap.Clear();
                 m_UnloadSceneNameToHandleMap.Clear();
+                m_LoadedAssetHandlesToRemove.Clear();
+                m_LoadedSceneHandlesToRemove.Clear();
+                m_UnloadSceneHandlesToRemove.Clear();
             }
 
             /// <summary>
@@ -186,25 +219,25 @@ namespace GameFramework.Resource
 
             private void LoadAssetFailCallback(string assetName, string errorMessage)
             {
-                m_LoadedAssetNameToHandleMap.Remove(assetName);
+                m_LoadedAssetHandlesToRemove.Add(assetName);
                 throw new GameFrameworkException(Utility.Text.Format("Load asset failure, asset name '{0}', error message '{1}'.", assetName, errorMessage));
             }
 
             private void LoadSceneFailCallback(string sceneAssetName, string errorMessage)
             {
-                m_LoadedSceneNameToHandleMap.Remove(sceneAssetName);
+                m_LoadedSceneHandlesToRemove.Add(sceneAssetName);
                 throw new GameFrameworkException(Utility.Text.Format("Load scene failure, scene asset name '{0}', error message '{1}'.", sceneAssetName, errorMessage));
             }
 
             private void UnloadSceneSuccessCallback(string sceneAssetName)
             {
-                m_UnloadSceneNameToHandleMap.Remove(sceneAssetName);
-                m_LoadedSceneNameToHandleMap.Remove(sceneAssetName);
+                m_UnloadSceneHandlesToRemove.Add(sceneAssetName);
+                m_LoadedSceneHandlesToRemove.Add(sceneAssetName);
             }
 
             private void UnloadSceneFailureCallback(string sceneAssetName, string errorMessage)
             {
-                m_UnloadSceneNameToHandleMap.Remove(sceneAssetName);
+                m_UnloadSceneHandlesToRemove.Add(sceneAssetName);
                 throw new GameFrameworkException(Utility.Text.Format("Unload scene failure, scene asset name '{0}', error message '{1}'.", sceneAssetName, errorMessage));
             }
         }
