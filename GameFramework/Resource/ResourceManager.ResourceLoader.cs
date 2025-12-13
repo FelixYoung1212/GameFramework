@@ -146,14 +146,14 @@ namespace GameFramework.Resource
             /// 实例化资源。
             /// </summary>
             /// <param name="asset">要实例化的资源。</param>
-            public void Instantiate(object asset)
+            public object Instantiate(object asset)
             {
                 if (m_ResourceHelper == null)
                 {
                     throw new GameFrameworkException("You must set resource helper first.");
                 }
 
-                m_ResourceHelper.Instantiate(asset);
+                return m_ResourceHelper.Instantiate(asset);
             }
 
             /// <summary>

@@ -22,7 +22,8 @@ namespace GameFramework.Resource
         /// 实例化资源。
         /// </summary>
         /// <param name="asset">要实例化的资源。</param>
-        void Instantiate(object asset);
+        /// <returns>资源实例</returns>
+        object Instantiate(object asset);
 
         /// <summary>
         /// 释放并且销毁实例化资源
