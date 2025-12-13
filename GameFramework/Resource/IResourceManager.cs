@@ -44,8 +44,9 @@
         /// <summary>
         /// 释放并且销毁实例化资源
         /// </summary>
-        /// <param name="instance"></param>
-        void ReleaseInstance(object instance);
+        /// <param name="instance">资源实例</param>
+        /// <param name="asset">原始资源</param>
+        void ReleaseInstance(object instance, object asset);
 
         /// <summary>
         /// 异步加载场景。

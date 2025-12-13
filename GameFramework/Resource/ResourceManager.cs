@@ -25,21 +25,15 @@ namespace GameFramework.Resource
         /// <remarks>优先级较高的模块会优先轮询，并且关闭操作会后进行。</remarks>
         internal override int Priority
         {
-            get
-            {
-                return 3;
-            }
+            get { return 3; }
         }
-        
+
         /// <summary>
         /// 获取当前资源适用的游戏版本号。
         /// </summary>
         public string ApplicableGameVersion
         {
-            get
-            {
-                return m_ApplicableGameVersion;
-            }
+            get { return m_ApplicableGameVersion; }
         }
 
         /// <summary>
@@ -47,12 +41,9 @@ namespace GameFramework.Resource
         /// </summary>
         public int InternalResourceVersion
         {
-            get
-            {
-                return m_InternalResourceVersion;
-            }
+            get { return m_InternalResourceVersion; }
         }
-        
+
         /// <summary>
         /// 设置资源辅助器。
         /// </summary>
@@ -157,14 +148,15 @@ namespace GameFramework.Resource
 
             m_ResourceLoader.UnloadAsset(asset);
         }
-        
+
         /// <summary>
         /// 释放并且销毁实例化资源
         /// </summary>
-        /// <param name="instance"></param>
-        public void ReleaseInstance(object instance)
+        /// <param name="instance">资源实例</param>
+        /// <param name="asset">原始资源</param>
+        public void ReleaseInstance(object instance, object asset)
         {
-            m_ResourceLoader.ReleaseInstance(instance);
+            m_ResourceLoader.ReleaseInstance(instance, asset);
         }
     }
 }

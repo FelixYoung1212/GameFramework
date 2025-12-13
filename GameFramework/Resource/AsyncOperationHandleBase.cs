@@ -8,6 +8,11 @@ namespace GameFramework.Resource
     public abstract class AsyncOperationHandleBase
     {
         /// <summary>
+        /// 资源名
+        /// </summary>
+        public string AssetName { get; }
+
+        /// <summary>
         /// 异步加载资源进度
         /// </summary>
         public abstract float Progress { get; }
@@ -76,6 +81,15 @@ namespace GameFramework.Resource
         /// 资源引用计数
         /// </summary>
         internal int ReferenceCount => m_ReferenceCount;
+
+        /// <summary>
+        /// 异步加载资源句柄基类构造器
+        /// </summary>
+        /// <param name="assetName">资源名</param>
+        protected AsyncOperationHandleBase(string assetName)
+        {
+            AssetName = assetName;
+        }
 
         /// <summary>
         /// 开始异步加载
