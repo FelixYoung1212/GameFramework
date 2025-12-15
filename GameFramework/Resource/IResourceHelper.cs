@@ -11,14 +11,6 @@ namespace GameFramework.Resource
         /// 异步加载资源。
         /// </summary>
         /// <param name="assetName">要加载资源的名称。</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns>异步加载资源句柄</returns>
-        AsyncOperationHandleBase<T> LoadAsset<T>(string assetName) where T : class;
-
-        /// <summary>
-        /// 异步加载资源。
-        /// </summary>
-        /// <param name="assetName">要加载资源的名称。</param>
         /// <returns>异步加载资源句柄</returns>
         AsyncOperationHandleBase LoadAsset(string assetName);
 
@@ -32,9 +24,8 @@ namespace GameFramework.Resource
         /// 实例化资源。
         /// </summary>
         /// <param name="asset">要实例化的资源。</param>
-        /// <typeparam name="T"></typeparam>
         /// <returns>资源实例</returns>
-        T Instantiate<T>(object asset) where T : class;
+        object Instantiate(object asset);
 
         /// <summary>
         /// 释放并且销毁实例化资源

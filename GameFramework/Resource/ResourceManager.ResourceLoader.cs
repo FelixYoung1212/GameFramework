@@ -170,17 +170,6 @@ namespace GameFramework.Resource
             /// 异步加载资源。
             /// </summary>
             /// <param name="assetName">要加载资源的名称。</param>
-            /// <typeparam name="T"></typeparam>
-            /// <returns>异步加载资源句柄</returns>
-            public AsyncOperationHandleBase<T> LoadAsset<T>(string assetName) where T : class
-            {
-                return LoadAsset(assetName);
-            }
-
-            /// <summary>
-            /// 异步加载资源。
-            /// </summary>
-            /// <param name="assetName">要加载资源的名称。</param>
             /// <returns>异步加载资源句柄</returns>
             public AsyncOperationHandleBase LoadAsset(string assetName)
             {
@@ -255,9 +244,8 @@ namespace GameFramework.Resource
             /// 实例化资源。
             /// </summary>
             /// <param name="asset">要实例化的资源。</param>
-            /// <typeparam name="T"></typeparam>
             /// <returns>资源实例</returns>
-            public T Instantiate<T>(object asset) where T : class
+            public object Instantiate(object asset)
             {
                 if (m_ResourceHelper == null)
                 {
@@ -271,7 +259,7 @@ namespace GameFramework.Resource
 
                 try
                 {
-                    T instance = m_ResourceHelper.Instantiate<T>(asset);
+                    object instance = m_ResourceHelper.Instantiate(asset);
                     op.IncrementReferenceCount();
                     return instance;
                 }
