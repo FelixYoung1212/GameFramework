@@ -381,8 +381,8 @@ namespace GameFramework.Resource
 
             private void LoadAssetFailCallback(AsyncOperationHandleBase handle)
             {
-                m_LoadingAssetNameToHandlesMap.Remove(handle.AssetName);
-                throw new GameFrameworkException(Utility.Text.Format("Load asset failure, asset name '{0}', error message '{1}'.", handle.AssetName, handle.ErrorMessage));
+                m_LoadCompletedAssetNames.Add(handle.AssetName);
+                GameFrameworkLog.Error(Utility.Text.Format("Load asset failure, asset name '{0}', error message '{1}'.", handle.AssetName, handle.ErrorMessage));
             }
 
             private void LoadSceneSuccessCallback(AsyncOperationHandleBase handle)
@@ -393,8 +393,8 @@ namespace GameFramework.Resource
 
             private void LoadSceneFailCallback(AsyncOperationHandleBase handle)
             {
-                m_LoadingSceneNameToHandlesMap.Remove(handle.AssetName);
-                throw new GameFrameworkException(Utility.Text.Format("Load scene failure, scene asset name '{0}', error message '{1}'.", handle.AssetName, handle.ErrorMessage));
+                m_LoadCompletedSceneNames.Add(handle.AssetName);
+                GameFrameworkLog.Error(Utility.Text.Format("Load scene failure, scene asset name '{0}', error message '{1}'.", handle.AssetName, handle.ErrorMessage));
             }
 
             private void UnloadSceneSuccessCallback(AsyncOperationHandleBase handle)
@@ -405,8 +405,8 @@ namespace GameFramework.Resource
 
             private void UnloadSceneFailureCallback(AsyncOperationHandleBase handle)
             {
-                m_UnloadingSceneNameToHandleMap.Remove(handle.AssetName);
-                throw new GameFrameworkException(Utility.Text.Format("Unload scene failure, scene asset name '{0}', error message '{1}'.", handle.AssetName, handle.ErrorMessage));
+                m_UnloadCompletedSceneNames.Add(handle.AssetName);
+                GameFrameworkLog.Error(Utility.Text.Format("Unload scene failure, scene asset name '{0}', error message '{1}'.", handle.AssetName, handle.ErrorMessage));
             }
         }
     }
