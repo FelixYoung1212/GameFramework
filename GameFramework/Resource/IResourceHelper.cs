@@ -13,7 +13,7 @@ namespace GameFramework.Resource
         /// <param name="assetName">要加载资源的名称。</param>
         /// <typeparam name="T"></typeparam>
         /// <returns>异步加载资源句柄</returns>
-        AsyncOperationHandleBase LoadAsset<T>(string assetName);
+        AsyncOperationHandleBase LoadAsset<T>(string assetName) where T : class;
 
         /// <summary>
         /// 卸载资源。
