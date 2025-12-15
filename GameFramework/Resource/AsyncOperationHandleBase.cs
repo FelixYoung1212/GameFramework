@@ -238,15 +238,5 @@ namespace GameFramework.Resource
         {
             return new AsyncOperationHandleBase<T>(op);
         }
-
-        /// <summary>
-        /// 隐式转换符
-        /// </summary>
-        /// <param name="op"></param>
-        /// <returns></returns>
-        public static implicit operator AsyncOperationHandleBase(AsyncOperationHandleBase<T> op)
-        {
-            return op.m_Op;
-        }
     }
 }
