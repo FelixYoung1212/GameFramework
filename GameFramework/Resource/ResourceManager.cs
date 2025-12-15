@@ -100,10 +100,11 @@ namespace GameFramework.Resource
         /// 实例化资源。
         /// </summary>
         /// <param name="asset">要实例化的资源。</param>
+        /// <typeparam name="T"></typeparam>
         /// <returns>资源实例</returns>
-        public object Instantiate(object asset)
+        public T Instantiate<T>(object asset) where T : class
         {
-            return m_ResourceLoader.Instantiate(asset);
+            return m_ResourceLoader.Instantiate<T>(asset);
         }
 
         /// <summary>

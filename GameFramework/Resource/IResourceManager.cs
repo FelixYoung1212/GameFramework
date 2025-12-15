@@ -1,4 +1,6 @@
-﻿namespace GameFramework.Resource
+﻿using System;
+
+namespace GameFramework.Resource
 {
     /// <summary>
     /// 资源管理器接口
@@ -39,8 +41,9 @@
         /// 实例化资源。
         /// </summary>
         /// <param name="asset">要实例化的资源。</param>
+        /// <typeparam name="T"></typeparam>
         /// <returns>资源实例</returns>
-        object Instantiate(object asset);
+        T Instantiate<T>(object asset) where T : class;
 
         /// <summary>
         /// 释放并且销毁实例化资源

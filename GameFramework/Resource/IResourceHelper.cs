@@ -24,9 +24,10 @@ namespace GameFramework.Resource
         /// <summary>
         /// 实例化资源。
         /// </summary>
-        /// <param name="handle">要实例化的资源加载句柄。</param>
+        /// <param name="asset">要实例化的资源。</param>
+        /// <typeparam name="T"></typeparam>
         /// <returns>资源实例</returns>
-        object Instantiate(AsyncOperationHandleBase handle);
+        T Instantiate<T>(object asset) where T : class;
 
         /// <summary>
         /// 释放并且销毁实例化资源

@@ -244,8 +244,9 @@ namespace GameFramework.Resource
             /// 实例化资源。
             /// </summary>
             /// <param name="asset">要实例化的资源。</param>
+            /// <typeparam name="T"></typeparam>
             /// <returns>资源实例</returns>
-            public object Instantiate(object asset)
+            public T Instantiate<T>(object asset) where T : class
             {
                 if (m_ResourceHelper == null)
                 {
@@ -257,10 +258,10 @@ namespace GameFramework.Resource
                     throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
-                object instance;
+                T instance;
                 try
                 {
-                    instance = m_ResourceHelper.Instantiate(op);
+                    instance = m_ResourceHelper.Instantiate<T>(asset);
                     op.IncrementReferenceCount();
                 }
                 catch (Exception e)
