@@ -215,7 +215,7 @@ namespace GameFramework.Resource
 
                 if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
                 {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not find asset {0}.", asset.ToString()));
+                    throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
                 if (op.ReferenceCount > 1)
@@ -252,7 +252,7 @@ namespace GameFramework.Resource
 
                 if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
                 {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not find asset {0}.", asset.ToString()));
+                    throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
                 object instance;
@@ -283,7 +283,7 @@ namespace GameFramework.Resource
 
                 if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
                 {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not find asset {0}.", asset.ToString()));
+                    throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
                 try
