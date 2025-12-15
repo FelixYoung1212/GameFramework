@@ -149,7 +149,7 @@ namespace GameFramework
                 throw new GameFrameworkException("You must set data provider helper first.");
             }
 
-            AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(dataAssetName);
+            AsyncOperationHandleBase op = m_ResourceManager.LoadAsset<object>(dataAssetName);
             op.OnSucceeded += handle => LoadAssetSuccessCallback(dataAssetName, handle.Result, handle.Duration, userData);
             op.OnFailed += handle => LoadAssetFailureCallback(dataAssetName, handle.ErrorMessage, userData);
             op.OnProgress += handle => LoadAssetUpdateCallback(dataAssetName, handle.Progress, userData);

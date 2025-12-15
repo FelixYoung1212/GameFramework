@@ -605,7 +605,7 @@ namespace GameFramework.Entity
                 int serialId = ++m_Serial;
                 m_EntitiesBeingLoaded.Add(entityId, serialId);
                 ShowEntityInfo showEntityInfo = ShowEntityInfo.Create(serialId, entityId, entityGroup, userData);
-                AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(entityAssetName);
+                AsyncOperationHandleBase op = m_ResourceManager.LoadAsset<object>(entityAssetName);
                 op.OnSucceeded += handle => LoadAssetSuccessCallback(entityAssetName, handle.Result, handle.Duration, showEntityInfo);
                 op.OnFailed += handle => LoadAssetFailureCallback(entityAssetName, handle.ErrorMessage, showEntityInfo);
                 op.OnProgress += handle => LoadAssetUpdateCallback(entityAssetName, handle.Progress, showEntityInfo);

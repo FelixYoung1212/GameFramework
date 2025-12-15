@@ -416,7 +416,7 @@ namespace GameFramework.Sound
 
             m_SoundsBeingLoaded.Add(serialId);
             PlaySoundInfo playSoundInfo = PlaySoundInfo.Create(serialId, soundGroup, playSoundParams, userData);
-            AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(soundAssetName);
+            AsyncOperationHandleBase op = m_ResourceManager.LoadAsset<object>(soundAssetName);
             op.OnSucceeded += handle => LoadAssetSuccessCallback(soundAssetName, handle.Result, handle.Duration, playSoundInfo);
             op.OnFailed += handle => LoadAssetFailureCallback(soundAssetName, handle.ErrorMessage, playSoundInfo);
             op.OnProgress += handle => LoadAssetUpdateCallback(soundAssetName, handle.Progress, playSoundInfo);

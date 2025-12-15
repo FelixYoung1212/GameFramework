@@ -683,7 +683,7 @@ namespace GameFramework.UI
             {
                 m_UIFormsBeingLoaded.Add(serialId, uiFormAssetName);
                 OpenUIFormInfo openUiFormInfo = OpenUIFormInfo.Create(serialId, uiGroup, pauseCoveredUIForm, userData);
-                AsyncOperationHandleBase op = m_ResourceManager.LoadAsset(uiFormAssetName);
+                AsyncOperationHandleBase op = m_ResourceManager.LoadAsset<object>(uiFormAssetName);
                 op.OnSucceeded += handle => LoadAssetSuccessCallback(uiFormAssetName, handle.Result, handle.Duration, openUiFormInfo);
                 op.OnFailed += handle => LoadAssetFailureCallback(uiFormAssetName, handle.ErrorMessage, openUiFormInfo);
                 op.OnProgress += handle => LoadAssetUpdateCallback(uiFormAssetName, handle.Progress, openUiFormInfo);

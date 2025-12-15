@@ -170,8 +170,9 @@ namespace GameFramework.Resource
             /// 异步加载资源。
             /// </summary>
             /// <param name="assetName">要加载资源的名称。</param>
+            /// <typeparam name="T"></typeparam>
             /// <returns>异步加载资源句柄</returns>
-            public AsyncOperationHandleBase LoadAsset(string assetName)
+            public AsyncOperationHandleBase LoadAsset<T>(string assetName)
             {
                 if (m_ResourceHelper == null)
                 {
@@ -187,7 +188,7 @@ namespace GameFramework.Resource
 
                     try
                     {
-                        op = m_ResourceHelper.LoadAsset(assetName);
+                        op = m_ResourceHelper.LoadAsset<T>(assetName);
                         op.OnSucceeded += LoadAssetSuccessCallback;
                         op.OnFailed += LoadAssetFailCallback;
                         m_LoadingAssetNameToHandlesMap.Add(assetName, op);
@@ -243,6 +244,7 @@ namespace GameFramework.Resource
             /// 实例化资源。
             /// </summary>
             /// <param name="asset">要实例化的资源。</param>
+            /// <returns>资源实例</returns>
             public object Instantiate(object asset)
             {
                 if (m_ResourceHelper == null)

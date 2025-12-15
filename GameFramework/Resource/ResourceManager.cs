@@ -84,15 +84,16 @@ namespace GameFramework.Resource
         /// 异步加载资源。
         /// </summary>
         /// <param name="assetName">要加载资源的名称。</param>
+        /// <typeparam name="T"></typeparam>
         /// <returns>异步加载资源句柄</returns>
-        public AsyncOperationHandleBase LoadAsset(string assetName)
+        public AsyncOperationHandleBase LoadAsset<T>(string assetName)
         {
             if (string.IsNullOrEmpty(assetName))
             {
                 throw new GameFrameworkException("Asset name is invalid.");
             }
 
-            return m_ResourceLoader.LoadAsset(assetName);
+            return m_ResourceLoader.LoadAsset<T>(assetName);
         }
 
         /// <summary>
