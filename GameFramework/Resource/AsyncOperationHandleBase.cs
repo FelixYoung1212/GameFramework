@@ -228,8 +228,6 @@ namespace GameFramework.Resource
         /// 异步加载资源失败事件
         /// </summary>
         public event Action<AsyncOperationHandleBase<T>> OnFailed;
-        
-        internal void Start()=>m_Op.Start();
 
         /// <summary>
         /// 隐式转换符

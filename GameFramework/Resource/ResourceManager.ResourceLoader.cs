@@ -174,7 +174,7 @@ namespace GameFramework.Resource
             /// <returns>异步加载资源句柄</returns>
             public AsyncOperationHandleBase<T> LoadAsset<T>(string assetName) where T : class
             {
-                return m_ResourceHelper.LoadAsset(assetName);
+                return LoadAsset(assetName);
             }
 
             /// <summary>
