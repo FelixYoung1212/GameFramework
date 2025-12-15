@@ -172,35 +172,47 @@ namespace GameFramework.Resource
             /// <param name="assetName">要加载资源的名称。</param>
             /// <typeparam name="T"></typeparam>
             /// <returns>异步加载资源句柄</returns>
-            public AsyncOperationHandleBase LoadAsset<T>(string assetName) where T : class
+            public AsyncOperationHandleBase<T> LoadAsset<T>(string assetName) where T : class
+            {
+                return m_ResourceHelper.LoadAsset(assetName);
+            }
+
+            /// <summary>
+            /// 异步加载资源。
+            /// </summary>
+            /// <param name="assetName">要加载资源的名称。</param>
+            /// <returns>异步加载资源句柄</returns>
+            public AsyncOperationHandleBase LoadAsset(string assetName)
             {
                 if (m_ResourceHelper == null)
                 {
                     throw new GameFrameworkException("You must set resource helper first.");
                 }
 
-                if (!m_LoadedAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase op))
+                if (m_LoadedAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase op))
                 {
-                    if (m_LoadingAssetNameToHandlesMap.TryGetValue(assetName, out op))
-                    {
-                        return op;
-                    }
-
-                    try
-                    {
-                        op = m_ResourceHelper.LoadAsset<T>(assetName);
-                        op.OnSucceeded += LoadAssetSuccessCallback;
-                        op.OnFailed += LoadAssetFailCallback;
-                        m_LoadingAssetNameToHandlesMap.Add(assetName, op);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new GameFrameworkException(Utility.Text.Format("load asset failed asset name: {0} error message: {1}.", assetName, e.Message));
-                    }
+                    op.Start();
+                    return op;
                 }
 
-                op.Start();
-                return op;
+                if (m_LoadingAssetNameToHandlesMap.TryGetValue(assetName, out op))
+                {
+                    return op;
+                }
+
+                try
+                {
+                    op = m_ResourceHelper.LoadAsset(assetName);
+                    op.OnSucceeded += LoadAssetSuccessCallback;
+                    op.OnFailed += LoadAssetFailCallback;
+                    op.Start();
+                    m_LoadingAssetNameToHandlesMap.Add(assetName, op);
+                    return op;
+                }
+                catch (Exception e)
+                {
+                    throw new GameFrameworkException(Utility.Text.Format("load asset failed asset name: {0} error message: {1}.", assetName, e.Message));
+                }
             }
 
             /// <summary>
@@ -229,15 +241,14 @@ namespace GameFramework.Resource
                 try
                 {
                     m_ResourceHelper.UnloadAsset(op);
+                    var handle = m_LoadedAssetToHandleMap[asset];
+                    m_LoadedAssetNameToHandleMap.Remove(handle.AssetName);
+                    m_LoadedAssetToHandleMap.Remove(handle.Result);
                 }
                 catch (Exception e)
                 {
                     throw new GameFrameworkException(Utility.Text.Format("Can not unload asset {0}, error message {1}.", asset.ToString(), e.Message));
                 }
-
-                var handle = m_LoadedAssetToHandleMap[asset];
-                m_LoadedAssetNameToHandleMap.Remove(handle.AssetName);
-                m_LoadedAssetToHandleMap.Remove(handle.Result);
             }
 
             /// <summary>
@@ -258,18 +269,16 @@ namespace GameFramework.Resource
                     throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
-                T instance;
                 try
                 {
-                    instance = m_ResourceHelper.Instantiate<T>(asset);
+                    T instance = m_ResourceHelper.Instantiate<T>(asset);
                     op.IncrementReferenceCount();
+                    return instance;
                 }
                 catch (Exception e)
                 {
                     throw new GameFrameworkException(Utility.Text.Format("Can not instantiate asset {0} error message {1}.", asset.ToString(), e.Message));
                 }
-
-                return instance;
             }
 
             /// <summary>
@@ -312,28 +321,30 @@ namespace GameFramework.Resource
                     throw new GameFrameworkException("You must set resource helper first.");
                 }
 
-                if (!m_LoadedSceneNameToHandleMap.TryGetValue(sceneAssetName, out AsyncOperationHandleBase op))
+                if (m_LoadedSceneNameToHandleMap.TryGetValue(sceneAssetName, out AsyncOperationHandleBase op))
                 {
-                    if (m_LoadingSceneNameToHandlesMap.TryGetValue(sceneAssetName, out op))
-                    {
-                        return op;
-                    }
-
-                    try
-                    {
-                        op = m_ResourceHelper.LoadScene(sceneAssetName);
-                        op.OnSucceeded += LoadSceneSuccessCallback;
-                        op.OnFailed += LoadSceneFailCallback;
-                        m_LoadingSceneNameToHandlesMap.Add(sceneAssetName, op);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new GameFrameworkException(Utility.Text.Format("load scene failed scene name: {0} error message: {1}.", sceneAssetName, e.Message));
-                    }
+                    op.Start();
+                    return op;
+                }
+                
+                if (m_LoadingSceneNameToHandlesMap.TryGetValue(sceneAssetName, out op))
+                {
+                    return op;
                 }
 
-                op.Start();
-                return op;
+                try
+                {
+                    op = m_ResourceHelper.LoadScene(sceneAssetName);
+                    op.OnSucceeded += LoadSceneSuccessCallback;
+                    op.OnFailed += LoadSceneFailCallback;
+                    op.Start();
+                    m_LoadingSceneNameToHandlesMap.Add(sceneAssetName, op);
+                    return op;
+                }
+                catch (Exception e)
+                {
+                    throw new GameFrameworkException(Utility.Text.Format("load scene failed scene name: {0} error message: {1}.", sceneAssetName, e.Message));
+                }
             }
 
             /// <summary>
@@ -363,15 +374,14 @@ namespace GameFramework.Resource
                     unloadOp = m_ResourceHelper.UnloadScene(loadOp);
                     unloadOp.OnSucceeded += UnloadSceneSuccessCallback;
                     unloadOp.OnFailed += UnloadSceneFailureCallback;
+                    unloadOp.Start();
                     m_UnloadingSceneNameToHandleMap.Add(sceneAssetName, unloadOp);
+                    return unloadOp;
                 }
                 catch (Exception e)
                 {
                     throw new GameFrameworkException(Utility.Text.Format("unload scene {0} failed error message {1}.", sceneAssetName, e.Message));
                 }
-
-                unloadOp.Start();
-                return unloadOp;
             }
 
             private void LoadAssetSuccessCallback(AsyncOperationHandleBase handle)
