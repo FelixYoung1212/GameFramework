@@ -17,7 +17,7 @@ namespace GameFramework.DataTable
         /// 数据表。
         /// </summary>
         /// <typeparam name="T">数据表行的类型。</typeparam>
-        private sealed class DataTable<T> : DataTableBase, IDataTable<T> where T : class, IDataRow, new()
+        private sealed class DataTable<T> : DataTableBase, IDataTable<T> where T : class, IDataRow
         {
             private readonly Dictionary<int, T> m_DataSet;
             private T m_MinIdDataRow;
