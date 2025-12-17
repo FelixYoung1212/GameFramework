@@ -229,10 +229,10 @@ namespace GameFramework.Resource
 
                 try
                 {
+                    var assetName = op.AssetName;
                     m_ResourceHelper.UnloadAsset(op);
-                    var handle = m_LoadedAssetToHandleMap[asset];
-                    m_LoadedAssetNameToHandleMap.Remove(handle.AssetName);
-                    m_LoadedAssetToHandleMap.Remove(handle.Result);
+                    m_LoadedAssetNameToHandleMap.Remove(assetName);
+                    m_LoadedAssetToHandleMap.Remove(asset);
                 }
                 catch (Exception e)
                 {
