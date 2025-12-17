@@ -215,44 +215,8 @@ namespace GameFramework.DataTable
         /// <summary>
         /// 增加数据表行。
         /// </summary>
-        /// <param name="dataRowString">要解析的数据表行字符串数据。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        /// <returns>是否增加数据表行成功。</returns>
-        public abstract bool AddDataRow(object dataRowString, object userData);
-        
-        /// <summary>
-        /// 增加数据表行。
-        /// </summary>
-        /// <param name="dataRowBytes">要解析的数据表行二进制数据。</param>
-        /// <param name="startIndex">数据表行二进制流的起始位置。</param>
-        /// <param name="length">数据表行二进制流的长度。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        /// <returns>是否增加数据表行成功。</returns>
-        public abstract bool AddDataRow(object dataRowBytes, int startIndex, int length, object userData);
-
-        /// <summary>
-        /// 解析数据表行数据源。
-        /// </summary>
-        /// <param name="dataRowString">要解析的数据表行字符串数据。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        /// <returns>解析完成的数据表行数据。</returns>
-        internal IDataRow ParseDataRow(object dataRowString, object userData)
-        {
-            return m_DataProvider.ParseDataRow(dataRowString, userData);
-        }
-
-        /// <summary>
-        /// 解析数据表行数据源。
-        /// </summary>
-        /// <param name="dataRowBytes">要解析的数据表行二进制数据。</param>
-        /// <param name="startIndex">数据表行二进制流的起始位置。</param>
-        /// <param name="length">数据表行二进制流的长度。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        /// <returns>解析完成的数据表行数据。</returns>
-        internal IDataRow ParseDataRow(object dataRowBytes, int startIndex, int length, object userData)
-        {
-            return m_DataProvider.ParseDataRow(dataRowBytes, startIndex, length, userData);
-        }
+        /// <param name="dataRow">要增加的数据表行数据。</param>
+        public abstract void AddDataRow(IDataRow dataRow);
 
         /// <summary>
         /// 移除指定数据表行。

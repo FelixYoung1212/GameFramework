@@ -363,67 +363,20 @@ namespace GameFramework.DataTable
                     results.Add(dataRow.Value);
                 }
             }
-            
-            /// <summary>
-            /// 增加数据表行。
-            /// </summary>
-            /// <param name="dataRowString">要解析的数据表行字符串数据。</param>
-            /// <param name="userData">用户自定义数据。</param>
-            /// <returns>是否增加数据表行成功。</returns>
-            public override bool AddDataRow(object dataRowString, object userData)
-            {
-                try
-                {
-                    T dataRow = ParseDataRow(dataRowString, userData) as T;
-                    if (dataRow == null)
-                    {
-                        return false;
-                    }
-
-                    InternalAddDataRow(dataRow);
-                    return true;
-                }
-                catch (Exception exception)
-                {
-                    if (exception is GameFrameworkException)
-                    {
-                        throw;
-                    }
-
-                    throw new GameFrameworkException(Utility.Text.Format("Can not parse data row string for data table '{0}' with exception '{1}'.", new TypeNamePair(typeof(T), Name), exception), exception);
-                }
-            }
 
             /// <summary>
             /// 增加数据表行。
             /// </summary>
-            /// <param name="dataRowBytes">要解析的数据表行二进制数据。</param>
-            /// <param name="startIndex">数据表行二进制流的起始位置。</param>
-            /// <param name="length">数据表行二进制流的长度。</param>
-            /// <param name="userData">用户自定义数据。</param>
-            /// <returns>是否增加数据表行成功。</returns>
-            public override bool AddDataRow(object dataRowBytes, int startIndex, int length, object userData)
+            /// <param name="dataRow">要增加的数据表行数据。</param>
+            public override void AddDataRow(IDataRow dataRow)
             {
-                try
+                T dataRowT = dataRow as T;
+                if (dataRowT == null)
                 {
-                    T dataRow = ParseDataRow(dataRowBytes, startIndex, length, userData) as T;
-                    if (dataRow == null)
-                    {
-                        return false;
-                    }
-
-                    InternalAddDataRow(dataRow);
-                    return true;
+                    throw new GameFrameworkException("DataRow is invalid.");
                 }
-                catch (Exception exception)
-                {
-                    if (exception is GameFrameworkException)
-                    {
-                        throw;
-                    }
 
-                    throw new GameFrameworkException(Utility.Text.Format("Can not parse data row bytes for data table '{0}' with exception '{1}'.", new TypeNamePair(typeof(T), Name), exception), exception);
-                }
+                InternalAddDataRow(dataRowT);
             }
 
             /// <summary>

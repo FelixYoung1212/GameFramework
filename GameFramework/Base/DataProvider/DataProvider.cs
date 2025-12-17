@@ -283,30 +283,6 @@ namespace GameFramework
         }
 
         /// <summary>
-        /// 解析数据表行数据源。
-        /// </summary>
-        /// <param name="dataRowString">要解析的数据表行字符串数据。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        /// <returns>解析完成的数据表行数据。</returns>
-        internal IDataRow ParseDataRow(object dataRowString, object userData)
-        {
-            return m_DataProviderHelper.ParseDataRow(m_Owner, dataRowString, userData);
-        }
-        
-        /// <summary>
-        /// 解析数据表行数据源。
-        /// </summary>
-        /// <param name="dataRowBytes">要解析的数据表行二进制数据。</param>
-        /// <param name="startIndex">数据表行二进制流的起始位置。</param>
-        /// <param name="length">数据表行二进制流的长度。</param>
-        /// <param name="userData">用户自定义数据。</param>
-        /// <returns>解析完成的数据表行数据。</returns>
-        internal IDataRow ParseDataRow(object dataRowBytes, int startIndex, int length, object userData)
-        {
-            return m_DataProviderHelper.ParseDataRow(m_Owner, dataRowBytes, startIndex, length, userData);
-        }
-
-        /// <summary>
         /// 设置资源管理器。
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
