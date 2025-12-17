@@ -363,19 +363,19 @@ namespace GameFramework.DataTable
                     results.Add(dataRow.Value);
                 }
             }
-
+            
             /// <summary>
             /// 增加数据表行。
             /// </summary>
-            /// <param name="dataRowString">要解析的数据表行字符串。</param>
+            /// <param name="dataRowString">要解析的数据表行字符串数据。</param>
             /// <param name="userData">用户自定义数据。</param>
             /// <returns>是否增加数据表行成功。</returns>
-            public override bool AddDataRow(string dataRowString, object userData)
+            public override bool AddDataRow(object dataRowString, object userData)
             {
                 try
                 {
-                    T dataRow = new T();
-                    if (!dataRow.ParseDataRow(dataRowString, userData))
+                    T dataRow = ParseDataRow(dataRowString, userData) as T;
+                    if (dataRow == null)
                     {
                         return false;
                     }
@@ -397,17 +397,17 @@ namespace GameFramework.DataTable
             /// <summary>
             /// 增加数据表行。
             /// </summary>
-            /// <param name="dataRowBytes">要解析的数据表行二进制流。</param>
+            /// <param name="dataRowBytes">要解析的数据表行二进制数据。</param>
             /// <param name="startIndex">数据表行二进制流的起始位置。</param>
             /// <param name="length">数据表行二进制流的长度。</param>
             /// <param name="userData">用户自定义数据。</param>
             /// <returns>是否增加数据表行成功。</returns>
-            public override bool AddDataRow(byte[] dataRowBytes, int startIndex, int length, object userData)
+            public override bool AddDataRow(object dataRowBytes, int startIndex, int length, object userData)
             {
                 try
                 {
-                    T dataRow = new T();
-                    if (!dataRow.ParseDataRow(dataRowBytes, startIndex, length, userData))
+                    T dataRow = ParseDataRow(dataRowBytes, startIndex, length, userData) as T;
+                    if (dataRow == null)
                     {
                         return false;
                     }
