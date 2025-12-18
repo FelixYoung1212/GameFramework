@@ -16,6 +16,11 @@ namespace GameFramework.Resource
             /// 加载中的资源列表
             /// </summary>
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingAssetNameToHandlesMap;
+            
+            /// <summary>
+            /// 准备添加到加载中的资源列表的资源，临时列表
+            /// </summary>
+            private readonly Dictionary<string, AsyncOperationHandleBase> m_ToAddLoadingAssetNameToHandlesMap;
 
             /// <summary>
             /// 加载完成的资源列表，临时列表
@@ -63,6 +68,7 @@ namespace GameFramework.Resource
             public ResourceLoader()
             {
                 m_LoadingAssetNameToHandlesMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_ToAddLoadingAssetNameToHandlesMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadCompletedAssetNames = new List<string>();
                 m_LoadedAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadedAssetToHandleMap = new Dictionary<object, AsyncOperationHandleBase>();
@@ -119,6 +125,16 @@ namespace GameFramework.Resource
                     kvp.Value.Update(elapseSeconds, realElapseSeconds);
                 }
 
+                if (m_ToAddLoadingAssetNameToHandlesMap.Count > 0)
+                {
+                    foreach (var kvp in m_ToAddLoadingAssetNameToHandlesMap)
+                    {
+                        m_LoadingAssetNameToHandlesMap.Add(kvp.Key, kvp.Value);
+                    }
+
+                    m_ToAddLoadingAssetNameToHandlesMap.Clear();
+                }
+
                 if (m_LoadCompletedAssetNames.Count > 0)
                 {
                     foreach (var assetName in m_LoadCompletedAssetNames)
@@ -156,6 +172,7 @@ namespace GameFramework.Resource
             public void Shutdown()
             {
                 m_LoadingAssetNameToHandlesMap.Clear();
+                m_ToAddLoadingAssetNameToHandlesMap.Clear();
                 m_LoadCompletedAssetNames.Clear();
                 m_LoadedAssetNameToHandleMap.Clear();
                 m_LoadedAssetToHandleMap.Clear();
@@ -180,12 +197,14 @@ namespace GameFramework.Resource
 
                 if (m_LoadedAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase op))
                 {
+                    op.OnSucceeded += handle => handle.IncrementReferenceCount();
                     op.Start();
                     return op;
                 }
 
-                if (m_LoadingAssetNameToHandlesMap.TryGetValue(assetName, out op))
+                if (m_ToAddLoadingAssetNameToHandlesMap.TryGetValue(assetName, out op) || m_LoadingAssetNameToHandlesMap.TryGetValue(assetName, out op))
                 {
+                    op.OnSucceeded += handle => handle.IncrementReferenceCount();
                     return op;
                 }
 
@@ -195,7 +214,7 @@ namespace GameFramework.Resource
                     op.OnSucceeded += LoadAssetSuccessCallback;
                     op.OnFailed += LoadAssetFailCallback;
                     op.Start();
-                    m_LoadingAssetNameToHandlesMap.Add(assetName, op);
+                    m_ToAddLoadingAssetNameToHandlesMap.Add(assetName, op);
                     return op;
                 }
                 catch (Exception e)
@@ -214,29 +233,29 @@ namespace GameFramework.Resource
                 {
                     throw new GameFrameworkException("You must set resource helper first.");
                 }
-
+                
                 if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
                 {
                     throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
-                if (op.ReferenceCount > 1)
-                {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not unload asset {0}, reference count {1}.", asset.ToString(), op.ReferenceCount));
-                }
-
                 op.DecrementReferenceCount();
 
+                if (op.ReferenceCount > 0)
+                {
+                    return;
+                }
+
+                var assetName = op.AssetName;
                 try
                 {
-                    var assetName = op.AssetName;
                     m_ResourceHelper.UnloadAsset(op);
                     m_LoadedAssetNameToHandleMap.Remove(assetName);
                     m_LoadedAssetToHandleMap.Remove(asset);
                 }
                 catch (Exception e)
                 {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not unload asset {0}, error message {1}.", asset.ToString(), e.Message));
+                    throw new GameFrameworkException(Utility.Text.Format("Can not unload asset {0}, error message {1}.", assetName, e.Message));
                 }
             }
 
@@ -265,7 +284,7 @@ namespace GameFramework.Resource
                 }
                 catch (Exception e)
                 {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not instantiate asset {0} error message {1}.", asset.ToString(), e.Message));
+                    throw new GameFrameworkException(Utility.Text.Format("Can not instantiate asset {0} error message {1}.", op.AssetName, e.Message));
                 }
             }
 
@@ -293,7 +312,7 @@ namespace GameFramework.Resource
                 }
                 catch (Exception e)
                 {
-                    throw new GameFrameworkException(Utility.Text.Format("Can not release instance {0} error message {1}.", instance.ToString(), e.Message));
+                    throw new GameFrameworkException(Utility.Text.Format("Can not release instance {0} error message {1}.", op.AssetName, e.Message));
                 }
             }
 
