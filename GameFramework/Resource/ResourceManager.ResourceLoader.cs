@@ -36,6 +36,11 @@ namespace GameFramework.Resource
             /// 加载成功的资源列表
             /// </summary>
             private readonly Dictionary<object, AsyncOperationHandleBase> m_LoadedAssetToHandleMap;
+            
+            /// <summary>
+            /// 准备卸载的资源列表
+            /// </summary>
+            private readonly List<AsyncOperationHandleBase> m_ToUnloadAssetHandles;
 
             /// <summary>
             /// 加载中的场景列表
@@ -72,6 +77,7 @@ namespace GameFramework.Resource
                 m_LoadCompletedAssetNames = new List<string>();
                 m_LoadedAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadedAssetToHandleMap = new Dictionary<object, AsyncOperationHandleBase>();
+                m_ToUnloadAssetHandles = new List<AsyncOperationHandleBase>();
                 m_LoadingSceneNameToHandlesMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadCompletedSceneNames = new List<string>();
                 m_LoadedSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
@@ -145,6 +151,16 @@ namespace GameFramework.Resource
                     m_LoadCompletedAssetNames.Clear();
                 }
 
+                if (m_ToUnloadAssetHandles.Count > 0)
+                {
+                    foreach (var op in m_ToUnloadAssetHandles)
+                    {
+                        UnloadAssetInternal(op);
+                    }
+
+                    m_ToUnloadAssetHandles.Clear();
+                }
+
                 if (m_LoadCompletedSceneNames.Count > 0)
                 {
                     foreach (var sceneName in m_LoadCompletedSceneNames)
@@ -176,6 +192,7 @@ namespace GameFramework.Resource
                 m_LoadCompletedAssetNames.Clear();
                 m_LoadedAssetNameToHandleMap.Clear();
                 m_LoadedAssetToHandleMap.Clear();
+                m_ToUnloadAssetHandles.Clear();
                 m_LoadingSceneNameToHandlesMap.Clear();
                 m_LoadCompletedSceneNames.Clear();
                 m_LoadedSceneNameToHandleMap.Clear();
@@ -238,7 +255,16 @@ namespace GameFramework.Resource
                 {
                     throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
+                
+                m_ToUnloadAssetHandles.Add(op);
+            }
 
+            /// <summary>
+            /// 卸载资源。
+            /// </summary>
+            /// <param name="op">要卸载的资源句柄。</param>
+            private void UnloadAssetInternal(AsyncOperationHandleBase op)
+            {
                 op.DecrementReferenceCount();
 
                 if (op.ReferenceCount > 0)
@@ -247,6 +273,7 @@ namespace GameFramework.Resource
                 }
 
                 var assetName = op.AssetName;
+                var asset = op.Result;
                 try
                 {
                     m_ResourceHelper.UnloadAsset(op);
