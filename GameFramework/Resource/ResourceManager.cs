@@ -7,7 +7,8 @@ namespace GameFramework.Resource
     {
         private string m_ApplicableGameVersion;
         private int m_InternalResourceVersion;
-        private ResourceLoader m_ResourceLoader;
+        private AssetLoader m_AssetLoader;
+        private SceneLoader m_SceneLoader;
 
         /// <summary>
         /// 初始化资源管理器的新实例。
@@ -16,7 +17,8 @@ namespace GameFramework.Resource
         {
             m_ApplicableGameVersion = null;
             m_InternalResourceVersion = 0;
-            m_ResourceLoader = new ResourceLoader();
+            m_AssetLoader = new AssetLoader();
+            m_SceneLoader = new SceneLoader();
         }
 
         /// <summary>
@@ -55,7 +57,8 @@ namespace GameFramework.Resource
                 throw new GameFrameworkException("Resource helper is invalid.");
             }
 
-            m_ResourceLoader.SetResourceHelper(resourceHelper);
+            m_AssetLoader.SetResourceHelper(resourceHelper);
+            m_SceneLoader.SetResourceHelper(resourceHelper);
         }
 
         /// <summary>
@@ -65,7 +68,8 @@ namespace GameFramework.Resource
         /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
         internal override void Update(float elapseSeconds, float realElapseSeconds)
         {
-            m_ResourceLoader.Update(elapseSeconds, realElapseSeconds);
+            m_AssetLoader.Update(elapseSeconds, realElapseSeconds);
+            m_SceneLoader.Update(elapseSeconds, realElapseSeconds);
         }
 
         /// <summary>
@@ -73,10 +77,16 @@ namespace GameFramework.Resource
         /// </summary>
         internal override void Shutdown()
         {
-            if (m_ResourceLoader != null)
+            if (m_AssetLoader != null)
             {
-                m_ResourceLoader.Shutdown();
-                m_ResourceLoader = null;
+                m_AssetLoader.Shutdown();
+                m_AssetLoader = null;
+            }
+            
+            if (m_SceneLoader != null)
+            {
+                m_SceneLoader.Shutdown();
+                m_SceneLoader = null;
             }
         }
 
@@ -92,7 +102,7 @@ namespace GameFramework.Resource
                 throw new GameFrameworkException("Asset name is invalid.");
             }
             
-            return m_ResourceLoader.LoadAsset(assetName);
+            return m_AssetLoader.LoadAsset(assetName);
         }
 
         /// <summary>
@@ -102,37 +112,7 @@ namespace GameFramework.Resource
         /// <returns>资源实例</returns>
         public object Instantiate(object asset)
         {
-            return m_ResourceLoader.Instantiate(asset);
-        }
-
-        /// <summary>
-        /// 异步加载场景。
-        /// </summary>
-        /// <param name="sceneAssetName">要加载场景资源的名称。</param>
-        /// <returns>异步加载场景句柄</returns>
-        public AsyncOperationHandleBase LoadScene(string sceneAssetName)
-        {
-            if (string.IsNullOrEmpty(sceneAssetName))
-            {
-                throw new GameFrameworkException("Scene asset name is invalid.");
-            }
-
-            return m_ResourceLoader.LoadScene(sceneAssetName);
-        }
-
-        /// <summary>
-        /// 异步卸载场景。
-        /// </summary>
-        /// <param name="sceneAssetName">要卸载场景资源的名称。</param>
-        public AsyncOperationHandleBase UnloadScene(string sceneAssetName)
-        {
-            if (string.IsNullOrEmpty(sceneAssetName))
-            {
-                throw new GameFrameworkException("Scene asset name is invalid.");
-            }
-
-            AsyncOperationHandleBase op = m_ResourceLoader.UnloadScene(sceneAssetName);
-            return op;
+            return m_AssetLoader.Instantiate(asset);
         }
 
         /// <summary>
@@ -146,7 +126,7 @@ namespace GameFramework.Resource
                 throw new GameFrameworkException("Asset is invalid.");
             }
 
-            m_ResourceLoader.UnloadAsset(asset);
+            m_AssetLoader.UnloadAsset(asset);
         }
 
         /// <summary>
@@ -156,7 +136,37 @@ namespace GameFramework.Resource
         /// <param name="asset">原始资源</param>
         public void ReleaseInstance(object instance, object asset)
         {
-            m_ResourceLoader.ReleaseInstance(instance, asset);
+            m_AssetLoader.ReleaseInstance(instance, asset);
+        }
+        
+        /// <summary>
+        /// 异步加载场景。
+        /// </summary>
+        /// <param name="sceneAssetName">要加载场景资源的名称。</param>
+        /// <returns>异步加载场景句柄</returns>
+        public AsyncOperationHandleBase LoadScene(string sceneAssetName)
+        {
+            if (string.IsNullOrEmpty(sceneAssetName))
+            {
+                throw new GameFrameworkException("Scene asset name is invalid.");
+            }
+
+            return m_SceneLoader.LoadScene(sceneAssetName);
+        }
+
+        /// <summary>
+        /// 异步卸载场景。
+        /// </summary>
+        /// <param name="sceneAssetName">要卸载场景资源的名称。</param>
+        public AsyncOperationHandleBase UnloadScene(string sceneAssetName)
+        {
+            if (string.IsNullOrEmpty(sceneAssetName))
+            {
+                throw new GameFrameworkException("Scene asset name is invalid.");
+            }
+
+            AsyncOperationHandleBase op = m_SceneLoader.UnloadScene(sceneAssetName);
+            return op;
         }
     }
 }

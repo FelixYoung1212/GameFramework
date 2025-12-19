@@ -198,7 +198,8 @@
     <Compile Include="Resource\IResourceHelper.cs" />
     <Compile Include="Resource\ResourceManager.cs" />
     <Compile Include="Resource\IResourceManager.cs" />
-    <Compile Include="Resource\ResourceManager.ResourceLoader.cs" />
+    <Compile Include="Resource\ResourceManager.AssetLoader.cs" />
+    <Compile Include="Resource\ResourceManager.SceneLoader.cs" />
     <Compile Include="Scene\ISceneManager.cs" />
     <Compile Include="Scene\LoadSceneFailureEventArgs.cs" />
     <Compile Include="Scene\LoadSceneSuccessEventArgs.cs" />
