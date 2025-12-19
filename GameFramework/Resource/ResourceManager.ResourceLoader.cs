@@ -15,12 +15,18 @@ namespace GameFramework.Resource
             /// <summary>
             /// 加载中的资源列表
             /// </summary>
-            private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingAssetNameToHandlesMap;
+            private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingAssetNameToHandleMap;
             
             /// <summary>
             /// 准备添加到加载中的资源列表的资源，临时列表
+            /// 加载成功后再次加载的资源列表
             /// </summary>
-            private readonly Dictionary<string, AsyncOperationHandleBase> m_ToAddLoadingAssetNameToHandlesMap;
+            private readonly Dictionary<string, AsyncOperationHandleBase> m_AssetsToAddLoadingMap;
+            
+            /// <summary>
+            /// 加载成功后再次加载的资源列表
+            /// </summary>
+            private readonly List<AsyncOperationHandleBase> m_AssetsToLoadAfterLoaded;
 
             /// <summary>
             /// 加载完成的资源列表，临时列表
@@ -36,16 +42,16 @@ namespace GameFramework.Resource
             /// 加载成功的资源列表
             /// </summary>
             private readonly Dictionary<object, AsyncOperationHandleBase> m_LoadedAssetToHandleMap;
-            
+
             /// <summary>
             /// 准备卸载的资源列表
             /// </summary>
-            private readonly List<AsyncOperationHandleBase> m_ToUnloadAssetHandles;
+            private readonly Dictionary<AsyncOperationHandleBase, int> m_UnloadingAssetHandles;
 
             /// <summary>
             /// 加载中的场景列表
             /// </summary>
-            private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingSceneNameToHandlesMap;
+            private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingSceneNameToHandleMap;
 
             /// <summary>
             /// 加载完成的场景列表，临时列表
@@ -72,13 +78,14 @@ namespace GameFramework.Resource
             /// </summary>
             public ResourceLoader()
             {
-                m_LoadingAssetNameToHandlesMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
-                m_ToAddLoadingAssetNameToHandlesMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_LoadingAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_AssetsToAddLoadingMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_AssetsToLoadAfterLoaded = new List<AsyncOperationHandleBase>();
                 m_LoadCompletedAssetNames = new List<string>();
                 m_LoadedAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadedAssetToHandleMap = new Dictionary<object, AsyncOperationHandleBase>();
-                m_ToUnloadAssetHandles = new List<AsyncOperationHandleBase>();
-                m_LoadingSceneNameToHandlesMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_UnloadingAssetHandles = new Dictionary<AsyncOperationHandleBase, int>();
+                m_LoadingSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadCompletedSceneNames = new List<string>();
                 m_LoadedSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_UnloadingSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
@@ -106,12 +113,12 @@ namespace GameFramework.Resource
             /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
-                foreach (var kvp in m_LoadingAssetNameToHandlesMap)
+                foreach (var kvp in m_LoadingAssetNameToHandleMap)
                 {
                     kvp.Value.Update(elapseSeconds, realElapseSeconds);
                 }
 
-                foreach (var kvp in m_LoadingSceneNameToHandlesMap)
+                foreach (var kvp in m_LoadingSceneNameToHandleMap)
                 {
                     kvp.Value.Update(elapseSeconds, realElapseSeconds);
                 }
@@ -121,51 +128,69 @@ namespace GameFramework.Resource
                     kvp.Value.Update(elapseSeconds, realElapseSeconds);
                 }
 
-                foreach (var kvp in m_LoadedAssetNameToHandleMap)
-                {
-                    kvp.Value.Update(elapseSeconds, realElapseSeconds);
-                }
-
                 foreach (var kvp in m_LoadedSceneNameToHandleMap)
                 {
                     kvp.Value.Update(elapseSeconds, realElapseSeconds);
                 }
 
-                if (m_ToAddLoadingAssetNameToHandlesMap.Count > 0)
+                if (m_AssetsToAddLoadingMap.Count > 0)
                 {
-                    foreach (var kvp in m_ToAddLoadingAssetNameToHandlesMap)
+                    foreach (var kvp in m_AssetsToAddLoadingMap)
                     {
-                        m_LoadingAssetNameToHandlesMap.Add(kvp.Key, kvp.Value);
+                        m_LoadingAssetNameToHandleMap.Add(kvp.Key, kvp.Value);
                     }
 
-                    m_ToAddLoadingAssetNameToHandlesMap.Clear();
+                    m_AssetsToAddLoadingMap.Clear();
+                }
+                
+                if (m_AssetsToLoadAfterLoaded.Count > 0)
+                {
+                    for (var i = 0; i < m_AssetsToLoadAfterLoaded.Count; i++)
+                    {
+                        m_AssetsToLoadAfterLoaded[i].Update(elapseSeconds, realElapseSeconds);
+                    }
+
+                    m_AssetsToLoadAfterLoaded.Clear();
                 }
 
                 if (m_LoadCompletedAssetNames.Count > 0)
                 {
                     foreach (var assetName in m_LoadCompletedAssetNames)
                     {
-                        m_LoadingAssetNameToHandlesMap.Remove(assetName);
+                        m_LoadingAssetNameToHandleMap.Remove(assetName);
                     }
 
                     m_LoadCompletedAssetNames.Clear();
                 }
 
-                if (m_ToUnloadAssetHandles.Count > 0)
+                if (m_UnloadingAssetHandles.Count > 0)
                 {
-                    foreach (var op in m_ToUnloadAssetHandles)
+                    foreach (var kvp in m_UnloadingAssetHandles)
                     {
-                        UnloadAssetInternal(op);
+                        if (kvp.Value > kvp.Key.ReferenceCount)
+                        {
+                            GameFrameworkLog.Warning(Utility.Text.Format("asset name '{0}' unload count '{1}' > reference count '{2}'.", kvp.Key.AssetName, kvp.Value, kvp.Key.ReferenceCount));
+                        }
+
+                        for (int i = 0; i < kvp.Value; i++)
+                        {
+                            if (kvp.Key.ReferenceCount <= 0)
+                            {
+                                break;
+                            }
+
+                            UnloadAssetInternal(kvp.Key);
+                        }
                     }
 
-                    m_ToUnloadAssetHandles.Clear();
+                    m_UnloadingAssetHandles.Clear();
                 }
 
                 if (m_LoadCompletedSceneNames.Count > 0)
                 {
                     foreach (var sceneName in m_LoadCompletedSceneNames)
                     {
-                        m_LoadingSceneNameToHandlesMap.Remove(sceneName);
+                        m_LoadingSceneNameToHandleMap.Remove(sceneName);
                     }
 
                     m_LoadCompletedSceneNames.Clear();
@@ -187,13 +212,14 @@ namespace GameFramework.Resource
             /// </summary>
             public void Shutdown()
             {
-                m_LoadingAssetNameToHandlesMap.Clear();
-                m_ToAddLoadingAssetNameToHandlesMap.Clear();
+                m_LoadingAssetNameToHandleMap.Clear();
+                m_AssetsToAddLoadingMap.Clear();
+                m_AssetsToLoadAfterLoaded.Clear();
                 m_LoadCompletedAssetNames.Clear();
                 m_LoadedAssetNameToHandleMap.Clear();
                 m_LoadedAssetToHandleMap.Clear();
-                m_ToUnloadAssetHandles.Clear();
-                m_LoadingSceneNameToHandlesMap.Clear();
+                m_UnloadingAssetHandles.Clear();
+                m_LoadingSceneNameToHandleMap.Clear();
                 m_LoadCompletedSceneNames.Clear();
                 m_LoadedSceneNameToHandleMap.Clear();
                 m_UnloadingSceneNameToHandleMap.Clear();
@@ -216,10 +242,11 @@ namespace GameFramework.Resource
                 {
                     op.OnSucceeded += handle => handle.IncrementReferenceCount();
                     op.Start();
+                    m_AssetsToLoadAfterLoaded.Add(op);
                     return op;
                 }
 
-                if (m_ToAddLoadingAssetNameToHandlesMap.TryGetValue(assetName, out op) || m_LoadingAssetNameToHandlesMap.TryGetValue(assetName, out op))
+                if (m_AssetsToAddLoadingMap.TryGetValue(assetName, out op) || m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out op))
                 {
                     op.OnSucceeded += handle => handle.IncrementReferenceCount();
                     return op;
@@ -231,7 +258,7 @@ namespace GameFramework.Resource
                     op.OnSucceeded += LoadAssetSuccessCallback;
                     op.OnFailed += LoadAssetFailCallback;
                     op.Start();
-                    m_ToAddLoadingAssetNameToHandlesMap.Add(assetName, op);
+                    m_AssetsToAddLoadingMap.Add(assetName, op);
                     return op;
                 }
                 catch (Exception e)
@@ -246,17 +273,17 @@ namespace GameFramework.Resource
             /// <param name="asset">要卸载的资源。</param>
             public void UnloadAsset(object asset)
             {
-                if (m_ResourceHelper == null)
-                {
-                    throw new GameFrameworkException("You must set resource helper first.");
-                }
-                
                 if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
                 {
                     throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
-                
-                m_ToUnloadAssetHandles.Add(op);
+
+                if (!m_UnloadingAssetHandles.ContainsKey(op))
+                {
+                    m_UnloadingAssetHandles[op] = 0;
+                }
+
+                m_UnloadingAssetHandles[op]++;
             }
 
             /// <summary>
@@ -265,6 +292,11 @@ namespace GameFramework.Resource
             /// <param name="op">要卸载的资源句柄。</param>
             private void UnloadAssetInternal(AsyncOperationHandleBase op)
             {
+                if (m_ResourceHelper == null)
+                {
+                    throw new GameFrameworkException("You must set resource helper first.");
+                }
+
                 op.DecrementReferenceCount();
 
                 if (op.ReferenceCount > 0)
@@ -361,7 +393,7 @@ namespace GameFramework.Resource
                     return op;
                 }
                 
-                if (m_LoadingSceneNameToHandlesMap.TryGetValue(sceneAssetName, out op))
+                if (m_LoadingSceneNameToHandleMap.TryGetValue(sceneAssetName, out op))
                 {
                     return op;
                 }
@@ -372,7 +404,7 @@ namespace GameFramework.Resource
                     op.OnSucceeded += LoadSceneSuccessCallback;
                     op.OnFailed += LoadSceneFailCallback;
                     op.Start();
-                    m_LoadingSceneNameToHandlesMap.Add(sceneAssetName, op);
+                    m_LoadingSceneNameToHandleMap.Add(sceneAssetName, op);
                     return op;
                 }
                 catch (Exception e)
