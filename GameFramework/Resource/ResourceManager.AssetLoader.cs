@@ -44,11 +44,6 @@ namespace GameFramework.Resource
             private readonly Dictionary<object, AsyncOperationHandleBase> m_LoadedAssetToHandleMap;
 
             /// <summary>
-            /// 准备卸载的资源列表
-            /// </summary>
-            private readonly Dictionary<AsyncOperationHandleBase, int> m_UnloadingAssetHandles;
-
-            /// <summary>
             /// 初始化加载资源器的新实例。
             /// </summary>
             public AssetLoader()
@@ -59,7 +54,6 @@ namespace GameFramework.Resource
                 m_LoadCompletedAssetNames = new List<string>();
                 m_LoadedAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadedAssetToHandleMap = new Dictionary<object, AsyncOperationHandleBase>();
-                m_UnloadingAssetHandles = new Dictionary<AsyncOperationHandleBase, int>();
             }
 
             /// <summary>
@@ -117,29 +111,6 @@ namespace GameFramework.Resource
 
                     m_LoadCompletedAssetNames.Clear();
                 }
-
-                if (m_UnloadingAssetHandles.Count > 0)
-                {
-                    foreach (var asset in m_UnloadingAssetHandles)
-                    {
-                        if (asset.Value > asset.Key.ReferenceCount)
-                        {
-                            GameFrameworkLog.Warning(Utility.Text.Format("asset name '{0}' unload count '{1}' > reference count '{2}'.", asset.Key.AssetName, asset.Value, asset.Key.ReferenceCount));
-                        }
-
-                        for (int i = 0; i < asset.Value; i++)
-                        {
-                            if (asset.Key.ReferenceCount <= 0)
-                            {
-                                break;
-                            }
-
-                            UnloadAssetInternal(asset.Key);
-                        }
-                    }
-
-                    m_UnloadingAssetHandles.Clear();
-                }
             }
 
             /// <summary>
@@ -153,7 +124,6 @@ namespace GameFramework.Resource
                 m_LoadCompletedAssetNames.Clear();
                 m_LoadedAssetNameToHandleMap.Clear();
                 m_LoadedAssetToHandleMap.Clear();
-                m_UnloadingAssetHandles.Clear();
             }
 
             /// <summary>
@@ -203,28 +173,14 @@ namespace GameFramework.Resource
             /// <param name="asset">要卸载的资源。</param>
             public void UnloadAsset(object asset)
             {
-                if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
-                {
-                    throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
-                }
-
-                if (!m_UnloadingAssetHandles.ContainsKey(op))
-                {
-                    m_UnloadingAssetHandles[op] = 0;
-                }
-
-                m_UnloadingAssetHandles[op]++;
-            }
-
-            /// <summary>
-            /// 卸载资源。
-            /// </summary>
-            /// <param name="op">要卸载的资源句柄。</param>
-            private void UnloadAssetInternal(AsyncOperationHandleBase op)
-            {
                 if (m_ResourceHelper == null)
                 {
                     throw new GameFrameworkException("You must set resource helper first.");
+                }
+
+                if (!m_LoadedAssetToHandleMap.TryGetValue(asset, out AsyncOperationHandleBase op))
+                {
+                    throw new GameFrameworkException(Utility.Text.Format("asset {0} is not loaded.", asset.ToString()));
                 }
 
                 op.DecrementReferenceCount();
@@ -235,7 +191,6 @@ namespace GameFramework.Resource
                 }
 
                 var assetName = op.AssetName;
-                var asset = op.Result;
                 try
                 {
                     m_ResourceHelper.UnloadAsset(op);
