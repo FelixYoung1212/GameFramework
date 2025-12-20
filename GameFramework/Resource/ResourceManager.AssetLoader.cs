@@ -137,7 +137,13 @@ namespace GameFramework.Resource
                     op.OnSucceeded += handle => handle.IncrementReferenceCount();
                     op.OnSucceeded += _ => m_LoadCompletedAssetNames.Add(assetName);
                     op.Execute();
-                    AddHandleToLoading(op);
+                    if (m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase _))
+                    {
+                        return op;
+                    }
+
+                    m_LoadingAssetHandles.Add(op);
+                    m_LoadingAssetNameToHandleMap.Add(assetName, op);
                     return op;
                 }
 
@@ -153,7 +159,8 @@ namespace GameFramework.Resource
                     op.OnSucceeded += LoadAssetSuccessCallback;
                     op.OnFailed += LoadAssetFailCallback;
                     op.Execute();
-                    AddHandleToLoading(op);
+                    m_LoadingAssetHandles.Add(op);
+                    m_LoadingAssetNameToHandleMap.Add(assetName, op);
                     return op;
                 }
                 catch (Exception e)
@@ -253,23 +260,6 @@ namespace GameFramework.Resource
                 {
                     throw new GameFrameworkException(Utility.Text.Format("Can not release instance {0} error message {1}.", op.AssetName, e.Message));
                 }
-            }
-
-            private void AddHandleToLoading(AsyncOperationHandleBase handle)
-            {
-                if (m_LoadingAssetNameToHandleMap.TryGetValue(handle.AssetName, out AsyncOperationHandleBase _))
-                {
-                    return;
-                }
-
-                m_LoadingAssetHandles.Add(handle);
-                m_LoadingAssetNameToHandleMap.Add(handle.AssetName, handle);
-            }
-
-            private void RemoveHandleFromLoading(AsyncOperationHandleBase handle)
-            {
-                m_LoadingAssetHandles.Remove(handle);
-                m_LoadingAssetNameToHandleMap.Remove(handle.AssetName);
             }
 
             private void LoadAssetSuccessCallback(AsyncOperationHandleBase handle)
