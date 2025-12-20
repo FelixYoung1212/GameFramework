@@ -132,7 +132,7 @@ namespace GameFramework.Resource
 
                 if (m_LoadedSceneNameToHandleMap.TryGetValue(sceneAssetName, out AsyncOperationHandleBase op))
                 {
-                    op.Start();
+                    op.Execute();
                     return op;
                 }
 
@@ -146,7 +146,7 @@ namespace GameFramework.Resource
                     op = m_ResourceHelper.LoadScene(sceneAssetName);
                     op.OnSucceeded += LoadSceneSuccessCallback;
                     op.OnFailed += LoadSceneFailCallback;
-                    op.Start();
+                    op.Execute();
                     m_LoadingSceneNameToHandleMap.Add(sceneAssetName, op);
                     return op;
                 }
@@ -183,7 +183,7 @@ namespace GameFramework.Resource
                     unloadOp = m_ResourceHelper.UnloadScene(loadOp);
                     unloadOp.OnSucceeded += UnloadSceneSuccessCallback;
                     unloadOp.OnFailed += UnloadSceneFailureCallback;
-                    unloadOp.Start();
+                    unloadOp.Execute();
                     m_UnloadingSceneNameToHandleMap.Add(sceneAssetName, unloadOp);
                     return unloadOp;
                 }

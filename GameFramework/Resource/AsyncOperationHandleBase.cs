@@ -13,6 +13,11 @@ namespace GameFramework.Resource
         public string AssetName { get; }
 
         /// <summary>
+        /// 资源句柄是否有效，释放之后变成无效
+        /// </summary>
+        public abstract bool IsValid { get; }
+
+        /// <summary>
         /// 异步加载资源进度
         /// </summary>
         public abstract float Progress { get; }
@@ -94,7 +99,7 @@ namespace GameFramework.Resource
         /// <summary>
         /// 开始异步加载
         /// </summary>
-        internal void Start()
+        internal void Execute()
         {
             if (m_IsRunning)
             {
@@ -147,6 +152,13 @@ namespace GameFramework.Resource
             OnSucceeded = null;
             OnFailed = null;
         }
+
+        /// <summary>
+        /// 释放资源加载句柄
+        /// </summary>
+        public virtual void Release()
+        {
+        }
     }
 
     /// <summary>
@@ -190,6 +202,11 @@ namespace GameFramework.Resource
         public string AssetName => m_Op.AssetName;
 
         /// <summary>
+        /// 资源句柄是否有效，释放之后变成无效
+        /// </summary>
+        public bool IsValid => m_Op.IsValid;
+
+        /// <summary>
         /// 异步加载资源进度
         /// </summary>
         public float Progress => m_Op.Progress;
@@ -228,6 +245,11 @@ namespace GameFramework.Resource
         /// 异步加载资源失败事件
         /// </summary>
         public event Action<AsyncOperationHandleBase<T>> OnFailed;
+
+        /// <summary>
+        /// 释放资源加载句柄
+        /// </summary>
+        public void Release() => m_Op.Release();
 
         /// <summary>
         /// 隐式转换符

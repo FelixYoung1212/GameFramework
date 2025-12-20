@@ -15,18 +15,12 @@ namespace GameFramework.Resource
             /// <summary>
             /// 加载中的资源列表
             /// </summary>
+            private readonly List<AsyncOperationHandleBase> m_LoadingAssetHandles;
+
+            /// <summary>
+            /// 加载中的资源列表,加速查询
+            /// </summary>
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingAssetNameToHandleMap;
-            
-            /// <summary>
-            /// 准备添加到加载中的资源列表的资源，临时列表
-            /// 加载成功后再次加载的资源列表
-            /// </summary>
-            private readonly Dictionary<string, AsyncOperationHandleBase> m_AssetsToAddLoadingMap;
-            
-            /// <summary>
-            /// 加载成功后再次加载的资源列表
-            /// </summary>
-            private readonly List<AsyncOperationHandleBase> m_AssetsToLoadAfterLoaded;
 
             /// <summary>
             /// 加载完成的资源列表，临时列表
@@ -48,9 +42,8 @@ namespace GameFramework.Resource
             /// </summary>
             public AssetLoader()
             {
+                m_LoadingAssetHandles = new List<AsyncOperationHandleBase>();
                 m_LoadingAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
-                m_AssetsToAddLoadingMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
-                m_AssetsToLoadAfterLoaded = new List<AsyncOperationHandleBase>();
                 m_LoadCompletedAssetNames = new List<string>();
                 m_LoadedAssetNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadedAssetToHandleMap = new Dictionary<object, AsyncOperationHandleBase>();
@@ -77,39 +70,41 @@ namespace GameFramework.Resource
             /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
-                foreach (var asset in m_LoadingAssetNameToHandleMap)
+                for (var i = 0; i < m_LoadingAssetHandles.Count; i++)
                 {
-                    asset.Value.Update(elapseSeconds, realElapseSeconds);
-                }
-
-                if (m_AssetsToAddLoadingMap.Count > 0)
-                {
-                    foreach (var asset in m_AssetsToAddLoadingMap)
+                    var handle = m_LoadingAssetHandles[i];
+                    if (handle.IsValid)
                     {
-                        m_LoadingAssetNameToHandleMap.Add(asset.Key, asset.Value);
+                        handle.Update(elapseSeconds, realElapseSeconds);
                     }
-
-                    m_AssetsToAddLoadingMap.Clear();
-                }
-                
-                if (m_AssetsToLoadAfterLoaded.Count > 0)
-                {
-                    for (var i = 0; i < m_AssetsToLoadAfterLoaded.Count; i++)
-                    {
-                        m_AssetsToLoadAfterLoaded[i].Update(elapseSeconds, realElapseSeconds);
-                    }
-
-                    m_AssetsToLoadAfterLoaded.Clear();
                 }
 
                 if (m_LoadCompletedAssetNames.Count > 0)
                 {
                     foreach (var assetName in m_LoadCompletedAssetNames)
                     {
-                        m_LoadingAssetNameToHandleMap.Remove(assetName);
+                        if (!m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out var handle))
+                        {
+                            continue;
+                        }
+
+                        m_LoadingAssetHandles.Remove(handle);
+                        m_LoadingAssetNameToHandleMap.Remove(handle.AssetName);
                     }
 
                     m_LoadCompletedAssetNames.Clear();
+                }
+
+                for (var i = m_LoadingAssetHandles.Count - 1; i >= 0; i--)
+                {
+                    var handle = m_LoadingAssetHandles[i];
+                    if (handle.IsValid)
+                    {
+                        continue;
+                    }
+
+                    m_LoadingAssetHandles.RemoveAt(i);
+                    m_LoadingAssetNameToHandleMap.Remove(handle.AssetName);
                 }
             }
 
@@ -118,9 +113,8 @@ namespace GameFramework.Resource
             /// </summary>
             public void Shutdown()
             {
+                m_LoadingAssetHandles.Clear();
                 m_LoadingAssetNameToHandleMap.Clear();
-                m_AssetsToAddLoadingMap.Clear();
-                m_AssetsToLoadAfterLoaded.Clear();
                 m_LoadCompletedAssetNames.Clear();
                 m_LoadedAssetNameToHandleMap.Clear();
                 m_LoadedAssetToHandleMap.Clear();
@@ -141,12 +135,13 @@ namespace GameFramework.Resource
                 if (m_LoadedAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase op))
                 {
                     op.OnSucceeded += handle => handle.IncrementReferenceCount();
-                    op.Start();
-                    m_AssetsToLoadAfterLoaded.Add(op);
+                    op.OnSucceeded += _ => m_LoadCompletedAssetNames.Add(assetName);
+                    op.Execute();
+                    AddHandleToLoading(op);
                     return op;
                 }
 
-                if (m_AssetsToAddLoadingMap.TryGetValue(assetName, out op) || m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out op))
+                if (m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out op))
                 {
                     op.OnSucceeded += handle => handle.IncrementReferenceCount();
                     return op;
@@ -157,8 +152,8 @@ namespace GameFramework.Resource
                     op = m_ResourceHelper.LoadAsset(assetName);
                     op.OnSucceeded += LoadAssetSuccessCallback;
                     op.OnFailed += LoadAssetFailCallback;
-                    op.Start();
-                    m_AssetsToAddLoadingMap.Add(assetName, op);
+                    op.Execute();
+                    AddHandleToLoading(op);
                     return op;
                 }
                 catch (Exception e)
@@ -258,6 +253,23 @@ namespace GameFramework.Resource
                 {
                     throw new GameFrameworkException(Utility.Text.Format("Can not release instance {0} error message {1}.", op.AssetName, e.Message));
                 }
+            }
+
+            private void AddHandleToLoading(AsyncOperationHandleBase handle)
+            {
+                if (m_LoadingAssetNameToHandleMap.TryGetValue(handle.AssetName, out AsyncOperationHandleBase _))
+                {
+                    return;
+                }
+
+                m_LoadingAssetHandles.Add(handle);
+                m_LoadingAssetNameToHandleMap.Add(handle.AssetName, handle);
+            }
+
+            private void RemoveHandleFromLoading(AsyncOperationHandleBase handle)
+            {
+                m_LoadingAssetHandles.Remove(handle);
+                m_LoadingAssetNameToHandleMap.Remove(handle.AssetName);
             }
 
             private void LoadAssetSuccessCallback(AsyncOperationHandleBase handle)
