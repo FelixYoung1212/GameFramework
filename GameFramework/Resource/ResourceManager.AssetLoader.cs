@@ -89,7 +89,7 @@ namespace GameFramework.Resource
                         }
 
                         m_LoadingAssetHandles.Remove(handle);
-                        m_LoadingAssetNameToHandleMap.Remove(handle.AssetName);
+                        m_LoadingAssetNameToHandleMap.Remove(assetName);
                     }
 
                     m_LoadCompletedAssetNames.Clear();
