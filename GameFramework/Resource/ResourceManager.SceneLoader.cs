@@ -13,12 +13,17 @@ namespace GameFramework.Resource
             private IResourceHelper m_ResourceHelper;
 
             /// <summary>
-            /// 加载中的场景列表
+            /// 加载中的场景句柄列表
+            /// </summary>
+            private readonly List<AsyncOperationHandleBase> m_LoadingSceneHandles;
+
+            /// <summary>
+            /// 加载中的场景名字对句柄字典，加速查询
             /// </summary>
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingSceneNameToHandleMap;
 
             /// <summary>
-            /// 加载完成的场景列表，临时列表
+            /// 加载完成的场景名字列表，临时列表
             /// </summary>
             private readonly List<string> m_LoadCompletedSceneNames;
 
@@ -26,6 +31,11 @@ namespace GameFramework.Resource
             /// 加载成功的场景字典
             /// </summary>
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadedSceneNameToHandleMap;
+
+            /// <summary>
+            /// 卸载中的场景句柄列表
+            /// </summary>
+            private readonly List<AsyncOperationHandleBase> m_UnLoadingSceneHandles;
 
             /// <summary>
             /// 卸载中的场景字典
@@ -42,9 +52,11 @@ namespace GameFramework.Resource
             /// </summary>
             public SceneLoader()
             {
+                m_LoadingSceneHandles = new List<AsyncOperationHandleBase>();
                 m_LoadingSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_LoadCompletedSceneNames = new List<string>();
                 m_LoadedSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
+                m_UnLoadingSceneHandles = new List<AsyncOperationHandleBase>();
                 m_UnloadingSceneNameToHandleMap = new Dictionary<string, AsyncOperationHandleBase>(StringComparer.Ordinal);
                 m_UnloadCompletedSceneNames = new List<string>();
             }
@@ -70,40 +82,12 @@ namespace GameFramework.Resource
             /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
-                foreach (var scene in m_LoadingSceneNameToHandleMap)
-                {
-                    scene.Value.Update(elapseSeconds, realElapseSeconds);
-                }
-
-                foreach (var scene in m_UnloadingSceneNameToHandleMap)
-                {
-                    scene.Value.Update(elapseSeconds, realElapseSeconds);
-                }
-
-                foreach (var scene in m_LoadedSceneNameToHandleMap)
-                {
-                    scene.Value.Update(elapseSeconds, realElapseSeconds);
-                }
-
-                if (m_LoadCompletedSceneNames.Count > 0)
-                {
-                    foreach (var sceneName in m_LoadCompletedSceneNames)
-                    {
-                        m_LoadingSceneNameToHandleMap.Remove(sceneName);
-                    }
-
-                    m_LoadCompletedSceneNames.Clear();
-                }
-
-                if (m_UnloadCompletedSceneNames.Count > 0)
-                {
-                    foreach (var sceneName in m_UnloadCompletedSceneNames)
-                    {
-                        m_UnloadingSceneNameToHandleMap.Remove(sceneName);
-                    }
-
-                    m_UnloadCompletedSceneNames.Clear();
-                }
+                AsyncOperationHandleUtility.UpdateHandles(m_LoadingSceneHandles, elapseSeconds, realElapseSeconds);
+                AsyncOperationHandleUtility.RemoveHandlesByName(m_LoadCompletedSceneNames, m_LoadingSceneHandles, m_LoadingSceneNameToHandleMap);
+                AsyncOperationHandleUtility.RemoveInvalidHandles(m_LoadingSceneHandles, m_LoadingSceneNameToHandleMap);
+                AsyncOperationHandleUtility.UpdateHandles(m_UnLoadingSceneHandles, elapseSeconds, realElapseSeconds);
+                AsyncOperationHandleUtility.RemoveHandlesByName(m_UnloadCompletedSceneNames, m_UnLoadingSceneHandles, m_UnloadingSceneNameToHandleMap);
+                AsyncOperationHandleUtility.RemoveInvalidHandles(m_UnLoadingSceneHandles, m_UnloadingSceneNameToHandleMap);
             }
 
             /// <summary>
@@ -111,9 +95,11 @@ namespace GameFramework.Resource
             /// </summary>
             public void Shutdown()
             {
+                m_LoadingSceneHandles.Clear();
                 m_LoadingSceneNameToHandleMap.Clear();
                 m_LoadCompletedSceneNames.Clear();
                 m_LoadedSceneNameToHandleMap.Clear();
+                m_UnLoadingSceneHandles.Clear();
                 m_UnloadingSceneNameToHandleMap.Clear();
                 m_UnloadCompletedSceneNames.Clear();
             }
@@ -132,7 +118,15 @@ namespace GameFramework.Resource
 
                 if (m_LoadedSceneNameToHandleMap.TryGetValue(sceneAssetName, out AsyncOperationHandleBase op))
                 {
+                    if (m_LoadingSceneNameToHandleMap.TryGetValue(sceneAssetName, out AsyncOperationHandleBase _))
+                    {
+                        return op;
+                    }
+
+                    op.OnSucceeded += _ => m_LoadCompletedSceneNames.Add(sceneAssetName);
                     op.Execute();
+                    m_LoadingSceneHandles.Add(op);
+                    m_LoadingSceneNameToHandleMap.Add(sceneAssetName, op);
                     return op;
                 }
 
@@ -147,7 +141,8 @@ namespace GameFramework.Resource
                     op.OnSucceeded += LoadSceneSuccessCallback;
                     op.OnFailed += LoadSceneFailCallback;
                     op.Execute();
-                    m_LoadingSceneNameToHandleMap.Add(sceneAssetName, op);
+                    m_LoadingSceneHandles.Add(op);
+                    m_LoadedSceneNameToHandleMap.Add(sceneAssetName, op);
                     return op;
                 }
                 catch (Exception e)
@@ -184,6 +179,7 @@ namespace GameFramework.Resource
                     unloadOp.OnSucceeded += UnloadSceneSuccessCallback;
                     unloadOp.OnFailed += UnloadSceneFailureCallback;
                     unloadOp.Execute();
+                    m_UnLoadingSceneHandles.Add(unloadOp);
                     m_UnloadingSceneNameToHandleMap.Add(sceneAssetName, unloadOp);
                     return unloadOp;
                 }

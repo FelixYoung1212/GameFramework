@@ -13,17 +13,17 @@ namespace GameFramework.Resource
             private IResourceHelper m_ResourceHelper;
 
             /// <summary>
-            /// 加载中的资源列表
+            /// 加载中的资源句柄列表
             /// </summary>
             private readonly List<AsyncOperationHandleBase> m_LoadingAssetHandles;
 
             /// <summary>
-            /// 加载中的资源列表,加速查询
+            /// 加载中的资源名字对句柄字典,加速查询
             /// </summary>
             private readonly Dictionary<string, AsyncOperationHandleBase> m_LoadingAssetNameToHandleMap;
 
             /// <summary>
-            /// 加载完成的资源列表，临时列表
+            /// 加载完成的资源名字列表，临时列表
             /// </summary>
             private readonly List<string> m_LoadCompletedAssetNames;
 
@@ -70,42 +70,9 @@ namespace GameFramework.Resource
             /// <param name="realElapseSeconds">真实流逝时间，以秒为单位。</param>
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
-                for (var i = 0; i < m_LoadingAssetHandles.Count; i++)
-                {
-                    var handle = m_LoadingAssetHandles[i];
-                    if (handle.IsValid)
-                    {
-                        handle.Update(elapseSeconds, realElapseSeconds);
-                    }
-                }
-
-                if (m_LoadCompletedAssetNames.Count > 0)
-                {
-                    foreach (var assetName in m_LoadCompletedAssetNames)
-                    {
-                        if (!m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out var handle))
-                        {
-                            continue;
-                        }
-
-                        m_LoadingAssetHandles.Remove(handle);
-                        m_LoadingAssetNameToHandleMap.Remove(assetName);
-                    }
-
-                    m_LoadCompletedAssetNames.Clear();
-                }
-
-                for (var i = m_LoadingAssetHandles.Count - 1; i >= 0; i--)
-                {
-                    var handle = m_LoadingAssetHandles[i];
-                    if (handle.IsValid)
-                    {
-                        continue;
-                    }
-
-                    m_LoadingAssetHandles.RemoveAt(i);
-                    m_LoadingAssetNameToHandleMap.Remove(handle.AssetName);
-                }
+                AsyncOperationHandleUtility.UpdateHandles(m_LoadingAssetHandles, elapseSeconds, realElapseSeconds);
+                AsyncOperationHandleUtility.RemoveHandlesByName(m_LoadCompletedAssetNames, m_LoadingAssetHandles, m_LoadingAssetNameToHandleMap);
+                AsyncOperationHandleUtility.RemoveInvalidHandles(m_LoadingAssetHandles, m_LoadingAssetNameToHandleMap);
             }
 
             /// <summary>
@@ -135,13 +102,13 @@ namespace GameFramework.Resource
                 if (m_LoadedAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase op))
                 {
                     op.OnSucceeded += handle => handle.IncrementReferenceCount();
-                    op.OnSucceeded += _ => m_LoadCompletedAssetNames.Add(assetName);
-                    op.Execute();
                     if (m_LoadingAssetNameToHandleMap.TryGetValue(assetName, out AsyncOperationHandleBase _))
                     {
                         return op;
                     }
 
+                    op.OnSucceeded += _ => m_LoadCompletedAssetNames.Add(assetName);
+                    op.Execute();
                     m_LoadingAssetHandles.Add(op);
                     m_LoadingAssetNameToHandleMap.Add(assetName, op);
                     return op;
